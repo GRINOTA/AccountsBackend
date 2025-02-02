@@ -1,0 +1,12 @@
+using Microsoft.Extensions.DependencyInjection;
+
+namespace AccountsBackend.BusinesLogic;
+
+public static class Extensions
+{
+    public static IServiceCollection AddBusinessLogic(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<IAccountService, AccountServiceImpl>();
+        return serviceCollection;
+    }
+}
