@@ -14,6 +14,6 @@ internal class AccountRepositoryImpl(AccountsContext context) : IAccountReposito
 
     public async Task<List<Account?>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default) 
     {
-        return await context.Accounts.Where(a => a.UserId == userId).ToListAsync(cancellationToken);
+        return await context.Accounts.Include(a => a.Currency).Where(a => a.UserId == userId).ToListAsync(cancellationToken);
     }
 }

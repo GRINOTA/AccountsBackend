@@ -1,10 +1,20 @@
 using AccountsBackend.Data;
 using AccountsBackend.Data.Models;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace AccountsBackend.BusinesLogic;
 
-internal class AccountServiceImpl(IAccountRepository accountRepository) : IAccountService
+internal class AccountServiceImpl : IAccountService
 {
+    private readonly IAccountRepository _accountRepository;
+    private readonly IMapper _mapper;
+
+    public AccountServiceImpl(IAccountRepository accountRepository, IMapper mapper) 
+    {
+        _accountRepository = accountRepository;
+        _mapper = mapper;
+    }
     public async Task CreateAsync(int userId, int currencyId, string number, decimal balance, CancellationToken cancellationToken = default)
     {
         var account = new Account
@@ -15,20 +25,13 @@ internal class AccountServiceImpl(IAccountRepository accountRepository) : IAccou
             Balance = balance
         };
 
-        await accountRepository.CreateAsync(account, cancellationToken);
+        await _accountRepository.CreateAsync(account, cancellationToken);
     }
 
-    public async Task<List<string>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default) 
+    public async Task<List<AccountDto>?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default) 
     {
-        var accounts = await accountRepository.GetByUserIdAsync(userId, cancellationToken);
-
-        List<string> list = new List<string>();
-
-        foreach(var account in accounts)
-        {
-            list.Add(account.Number);
-        }
+        var accounts = await _accountRepository.GetByUserIdAsync(userId, cancellationToken);
         
-        return list;
+        return _mapper.Map<List<AccountDto>>(accounts);
     }
 }
