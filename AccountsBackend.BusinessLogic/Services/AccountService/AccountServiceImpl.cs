@@ -17,4 +17,18 @@ internal class AccountServiceImpl(IAccountRepository accountRepository) : IAccou
 
         await accountRepository.CreateAsync(account, cancellationToken);
     }
+
+    public async Task<List<string>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default) 
+    {
+        var accounts = await accountRepository.GetByUserIdAsync(userId, cancellationToken);
+
+        List<string> list = new List<string>();
+
+        foreach(var account in accounts)
+        {
+            list.Add(account.Number);
+        }
+        
+        return list;
+    }
 }
