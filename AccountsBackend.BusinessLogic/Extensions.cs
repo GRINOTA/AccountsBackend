@@ -9,6 +9,7 @@ public static class Extensions
         serviceCollection.AddScoped<IAccountService, AccountServiceImpl>();
         serviceCollection.AddScoped<ITransactionService, TransactionServiceImpl>();
         serviceCollection.AddScoped<IUserService, UserServiceImpl>();
+        serviceCollection.AddScoped<IJwtGen, JwtGenImpl>();
         return serviceCollection;
     }
 }

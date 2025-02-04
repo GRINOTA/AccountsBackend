@@ -1,8 +1,10 @@
 using AccountsBackend.Data;
 using AccountsBackend.BusinesLogic;
-using System.Reflection;
 using AccountsBackend.BusinesLogic.Mapping;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
 
 namespace AccountsBackend.WebAPI;
 
@@ -18,18 +20,72 @@ public class Program
         builder.Services.AddDataAccess(configuration);
         builder.Services.AddBusinessLogic();
         builder.Services.AddControllers();
+
         builder.Services.AddAutoMapper(cfg => 
         {
             cfg.AddProfile<AssemblyMappingProfile>();
         }, typeof(AssemblyMappingProfile).Assembly);
 
+        builder.Services.AddAuthentication(opt =>
+        {
+            opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(opt =>
+        {
+            opt.RequireHttpsMetadata = false;  
+            opt.SaveToken = true;
+            opt.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+                ValidAudience = builder.Configuration["JwtConfig:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"])),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true
+            };  
+
+            opt.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token = context.Request.Cookies["cool-cookies"];
+
+                    return Task.CompletedTask;
+                }
+            };
+        });
+    
         // Add services to the container.
         builder.Services.AddAuthorization();
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(opt => 
+        {
+            var jwtSecurityScheme = new OpenApiSecurityScheme
+            {
+                BearerFormat = "JWT",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme,
+                Description = "Введите ваш JWT Access token",
+                Reference = new OpenApiReference
+                {
+                    Id = JwtBearerDefaults.AuthenticationScheme,
+                    Type = ReferenceType.SecurityScheme
+                }
+            };
+
+            opt.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+            opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {jwtSecurityScheme, Array.Empty<string>()}
+            });
+        });
 
         var app = builder.Build();
 
@@ -40,7 +96,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
+        
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
