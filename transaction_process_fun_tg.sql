@@ -1,3 +1,6 @@
+drop trigger tr_transaction_balance_update on transactions;
+drop function process_transaction();
+
 create or replace function process_transaction()
 returns trigger as $$
 declare
@@ -9,11 +12,17 @@ begin
 	for update;
 
 	if new.amount::decimal <= 0.00 then
-		RAISE EXCEPTION 'Некорректная сумма';
+		RAISE EXCEPTION 
+		USING 
+			ERRCODE = '21232',
+			DETAIL = 'Некорректное значение\n';
 	end if;
 
-	if sender_balance < new.amount::decimal  then
-		RAISE EXCEPTION 'Недостаточно средств';
+	if sender_balance < new.amount::decimal then
+		RAISE EXCEPTION 
+		USING
+			ERRCODE = '21232',
+			DETAIL = 'Недостаточно средств\n';
 	end if;
 	
 	update accounts
