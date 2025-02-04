@@ -11,7 +11,7 @@ public static class Extensions
     {
         serviceCollection.AddScoped<IAccountRepository, AccountRepositoryImpl>();
         serviceCollection.AddScoped<ITransactionRepository, TransactionRepositoryImpl>();
-        // serviceCollection.AddScoped<IUserRepository, UserRepositryImpl>();
+        serviceCollection.AddScoped<IUserRepository, UserRepositryImpl>();
         serviceCollection.AddDbContext<AccountsContext>( x =>
         {
             var connectionString = configuration.GetConnectionString("AccountDb"); 
