@@ -108,7 +108,10 @@ public partial class AccountsContext : DbContext
             entity.Property(e => e.Amount)
                 .HasColumnType("money")
                 .HasColumnName("amount");
-            entity.Property(e => e.Date).HasColumnName("date");
+            entity.Property(e => e.Date)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("date");
             entity.Property(e => e.RecipientAccountId).HasColumnName("recipient_account_id");
             entity.Property(e => e.SenderAccountId).HasColumnName("sender_account_id");
 
