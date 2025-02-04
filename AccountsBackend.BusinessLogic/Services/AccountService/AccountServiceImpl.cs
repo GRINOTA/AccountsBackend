@@ -15,6 +15,7 @@ internal class AccountServiceImpl : IAccountService
         _accountRepository = accountRepository;
         _mapper = mapper;
     }
+    
     public async Task CreateAsync(int userId, int currencyId, string number, decimal balance, CancellationToken cancellationToken = default)
     {
         var account = new Account

@@ -5,7 +5,7 @@ using AccountsBackend.BusinesLogic;
 namespace AccountsBackend.WebAPI;
 
 [ApiController]
-[Route("Account")]
+[Route("[controller]")]
 public class AccountController(IAccountService accountService) : ControllerBase
 {
     [HttpGet("{idUser:int}")]
