@@ -2,6 +2,7 @@ using AccountsBackend.Data;
 using AccountsBackend.BusinesLogic;
 using System.Reflection;
 using AccountsBackend.BusinesLogic.Mapping;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountsBackend.WebAPI;
 
@@ -17,13 +18,11 @@ public class Program
         builder.Services.AddDataAccess(configuration);
         builder.Services.AddBusinessLogic();
         builder.Services.AddControllers();
-        // builder.Services.AddAutoMapper(typeof(AccountDto).Assembly);
-
         builder.Services.AddAutoMapper(cfg => 
         {
             cfg.AddProfile<AssemblyMappingProfile>();
         }, typeof(AssemblyMappingProfile).Assembly);
-        
+
         // Add services to the container.
         builder.Services.AddAuthorization();
 
