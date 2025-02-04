@@ -12,7 +12,7 @@ internal class UserRepositryImpl(AccountsContext context) : IUserRepository
         await context.SaveChangesAsync();
     }   
 
-    public async Task<User?> GetUserByLoginAsync(string login, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByLoginAsync(string login, string password, CancellationToken cancellationToken = default)
     {
         return await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Login == login);
     } 

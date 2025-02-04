@@ -6,5 +6,5 @@ public interface IUserRepository
 {
     Task CreateUserAsync(User user, CancellationToken cancellationToken);
 
-    Task<User?> GetUserByLoginAsync(string login, CancellationToken cancellationToken);
+    Task<User?> GetUserByLoginAsync(string login, string password, CancellationToken cancellationToken);
 }

@@ -5,14 +5,19 @@ using AccountsBackend.BusinesLogic;
 namespace AccountsBackend.WebAPI;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class UserController(IUserService userService) : ControllerBase
 {
     [HttpPost("auth")]
-    public async Task<IActionResult> AuthAsync(string login, string password) 
+    public async Task<ActionResult<string>> AuthAsync(UserRequest request) 
     {
+        var result = await userService.GetUserByLoginAsync(request);
+
+        if (result is null)
+            return Unauthorized();
         
-        return Ok(new {User = await userService.GetUserByLoginAsync(login, password)});
+        Response.Cookies.Append("cool-cookies", result);
+        return result;
     }
 
     [HttpPost("register")]

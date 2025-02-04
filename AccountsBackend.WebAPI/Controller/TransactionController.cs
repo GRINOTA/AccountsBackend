@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using AccountsBackend.BusinesLogic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AccountsBackend.WebAPI;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
+[Authorize]
 public class TransactionController(ITransactionService transactionService) : ControllerBase
 {
     [HttpPost]
