@@ -4,15 +4,18 @@ using AutoMapper;
 
 namespace AccountsBackend.BusinesLogic;
 
-public class AccountDto : IMapWith<Account>
+public class AboutAccountDto : IMapWith<Account>
 {
+    public int UserId { get; set; }
     public string? Number { get; set; }
     public string? Currency { get; set; } 
     public decimal? Balance { get; set; }
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<Account, AccountDto>()
+        profile.CreateMap<Account, AboutAccountDto>()
+            .ForMember(g => g.UserId, 
+                opt => opt.MapFrom(a => a.UserId))
             .ForMember(g => g.Number, 
                 opt => opt.MapFrom(a => a.Number))
             .ForMember(g => g.Currency,
