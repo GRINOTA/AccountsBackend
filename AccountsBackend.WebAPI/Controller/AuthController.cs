@@ -26,4 +26,11 @@ public class AuthController(IAuthService authService) : ControllerBase
         await authService.RegisterUserAsync(surname, firstName, middleName, login, password);
         return Ok();
     }  
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUserByIdAsync ([FromRoute] int id)
+    {
+        var result = await authService.GetUserByIdAsync(id);
+        return Ok(result);
+    }
 }

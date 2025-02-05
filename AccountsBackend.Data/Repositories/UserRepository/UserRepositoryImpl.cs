@@ -16,4 +16,9 @@ internal class UserRepositryImpl(AccountsContext context) : IUserRepository
     {
         return await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Login == login);
     } 
+
+    public async Task<User> GetUserByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+    }
 }

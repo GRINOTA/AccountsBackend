@@ -6,6 +6,8 @@ using AccountsBackend.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using CryptSharp;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace AccountsBackend.BusinesLogic;
 
@@ -13,11 +15,13 @@ internal class AuthServiceImpl: IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IJwtGen _jwtGen;
+    private readonly IMapper _mapper;
 
-    public AuthServiceImpl(IUserRepository userRepositry, IJwtGen jwtGen)
+    public AuthServiceImpl(IUserRepository userRepositry, IJwtGen jwtGen, IMapper mapper)
     {
         _userRepository = userRepositry;
         _jwtGen = jwtGen;
+        _mapper = mapper;
     }
 
     public async Task RegisterUserAsync(string surname, string firstName, string? middleName, string login, string password, CancellationToken cancellationToken = default)
@@ -46,5 +50,11 @@ internal class AuthServiceImpl: IAuthService
             return null;
 
         return _jwtGen.Token(user);
+    }
+
+    public async Task<UserDto?> GetUserByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetUserByIdAsync(id);
+        return _mapper.Map<UserDto>(user);
     }
 }
