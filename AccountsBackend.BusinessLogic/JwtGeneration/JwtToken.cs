@@ -1,2 +1,0 @@
-namespace AccountsBackend.BusinesLogic;
-

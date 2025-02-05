@@ -6,12 +6,12 @@ namespace AccountsBackend.WebAPI;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserService userService) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    [HttpPost("auth")]
-    public async Task<ActionResult<string>> AuthAsync(UserRequest request) 
+    [HttpPost("login")]
+    public async Task<ActionResult<string>> LoginAsync(UserRequest request) 
     {
-        var result = await userService.GetUserByLoginAsync(request);
+        var result = await authService.LoginUserAsync(request);
 
         if (result is null)
             return Unauthorized();
@@ -23,7 +23,7 @@ public class UserController(IUserService userService) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync(string surname, string firstName, string middleName, string login, string password) 
     {
-        await userService.CreateUserAsync(surname, firstName, middleName, login, password);
+        await authService.RegisterUserAsync(surname, firstName, middleName, login, password);
         return Ok();
     }  
 }

@@ -1,4 +1,4 @@
-using AccountsBackend.Data.Context;
+using AccountsBackend.Data.DataContext;
 using AccountsBackend.Data.Models;
 using Microsoft.EntityFrameworkCore;
 

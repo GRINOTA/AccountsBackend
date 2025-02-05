@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using AccountsBackend.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AccountsBackend.Data.Context;
+namespace AccountsBackend.Data.DataContext;
 
 public partial class AccountsContext : DbContext
 {
@@ -25,8 +25,6 @@ public partial class AccountsContext : DbContext
     public virtual DbSet<Transaction> Transactions { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -138,9 +136,7 @@ public partial class AccountsContext : DbContext
                 .HasMaxLength(16)
                 .HasColumnName("login");
             entity.Property(e => e.MiddleName).HasColumnName("middle_name");
-            entity.Property(e => e.Password)
-                .HasMaxLength(16)
-                .HasColumnName("password");
+            entity.Property(e => e.Password).HasColumnName("password");
             entity.Property(e => e.Surname).HasColumnName("surname");
         });
 

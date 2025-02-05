@@ -1,4 +1,4 @@
-using AccountsBackend.Data.Context;
+using AccountsBackend.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
