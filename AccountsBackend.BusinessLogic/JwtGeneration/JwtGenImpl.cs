@@ -30,7 +30,8 @@ public class JwtGenImpl : IJwtGen
         {
             Subject = new ClaimsIdentity(new[] 
             {
-                new Claim(JwtRegisteredClaimNames.Name, user.Login)
+                new Claim(JwtRegisteredClaimNames.Name, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Login)
             }),
             Expires = tokenExpiryTimeStamp,
             Issuer = issuer,

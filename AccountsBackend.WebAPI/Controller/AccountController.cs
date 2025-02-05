@@ -18,10 +18,10 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(int idUser, int idCurrency, string number, decimal balance) 
+    public async Task<IActionResult> CreateAsync(int idUser, int idCurrency, string number) 
     {
         
-        await accountService.CreateAsync(idUser, idCurrency, number, balance);  
+        await accountService.CreateAsync(idUser, idCurrency, number);  
         return NoContent();    
     }
 }

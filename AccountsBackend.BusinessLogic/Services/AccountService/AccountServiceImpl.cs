@@ -16,14 +16,14 @@ internal class AccountServiceImpl : IAccountService
         _mapper = mapper;
     }
     
-    public async Task CreateAsync(int userId, int currencyId, string number, decimal balance, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(int userId, int currencyId, string number, CancellationToken cancellationToken = default)
     {
         var account = new Account
         {
             UserId = userId,
             CurrencyId = currencyId,
             Number = number,
-            Balance = balance
+            Balance = 1000
         };
 
         await _accountRepository.CreateAsync(account, cancellationToken);
