@@ -10,8 +10,8 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
 
         public DateTime Date { get; set; }
         public decimal Amount { get; set; }
-        public AboutAccountDto? Sender { get; set; }
-        public AboutAccountDto? Recipient { get; set; }
+        public AccountTransactionDto? Sender { get; set; }
+        public AccountTransactionDto? Recipient { get; set; }
         
         public void Mapping(Profile profile)
         {
