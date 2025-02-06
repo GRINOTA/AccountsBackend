@@ -15,6 +15,12 @@ public class TransactionController(ITransactionService transactionService) : Con
     {
         await transactionService.CreateAsync(idSenderAccount, idRecipientAccount, amount);
         return NoContent();
+    }
 
-    }  
+    [HttpGet("{userId}")]
+    public async Task<IActionResult> GetByUserIdAsync([FromRoute] int userId)
+    {
+        var result = await transactionService.GetByUserIdAsync(userId);
+        return Ok(result);
+    }
 }
