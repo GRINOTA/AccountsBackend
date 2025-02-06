@@ -1,36 +1,38 @@
 using AccountsBackend.Data;
 using AccountsBackend.Data.Models;
+using AccountsBackend.Data.Repositories.TransactionRepository;
 using AutoMapper;
 
-namespace AccountsBackend.BusinesLogic;
-
-internal class TransactionServiceImpl: ITransactionService
+namespace AccountsBackend.BusinessLogic.Services.TransactionService
 {
-    private readonly ITransactionRepository _transactionRepository;
-    private readonly IMapper _mapper;
-
-    public TransactionServiceImpl(ITransactionRepository transactionRepository, IMapper mapper)
+    internal class TransactionServiceImpl: ITransactionService
     {
-        _transactionRepository = transactionRepository;
-        _mapper = mapper;
-    }   
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly IMapper _mapper;
 
-    public async Task CreateAsync(int idSenderAccount, int idRecipientAccount, decimal amount, CancellationToken cancellationToken = default)
-    {
-        Transaction transaction = new Transaction 
+        public TransactionServiceImpl(ITransactionRepository transactionRepository, IMapper mapper)
         {
-            SenderAccountId = idSenderAccount,
-            RecipientAccountId = idRecipientAccount,
-            Amount = amount
-        };           
+            _transactionRepository = transactionRepository;
+            _mapper = mapper;
+        }   
 
-        await _transactionRepository.CreateAsync(transaction, cancellationToken);
-    }
+        public async Task CreateAsync(int idSenderAccount, int idRecipientAccount, decimal amount, CancellationToken cancellationToken = default)
+        {
+            Transaction transaction = new Transaction 
+            {
+                SenderAccountId = idSenderAccount,
+                RecipientAccountId = idRecipientAccount,
+                Amount = amount
+            };           
 
-    public async Task<List<TransactionDto>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
-    {
-        var transaction = await _transactionRepository.GetByUserIdAsync(userId, cancellationToken);
+            await _transactionRepository.CreateAsync(transaction, cancellationToken);
+        }
 
-        return _mapper.Map<List<TransactionDto>>(transaction);
+        public async Task<List<TransactionDto>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
+        {
+            var transaction = await _transactionRepository.GetByUserIdAsync(userId, cancellationToken);
+
+            return _mapper.Map<List<TransactionDto>>(transaction);
+        }
     }
 }

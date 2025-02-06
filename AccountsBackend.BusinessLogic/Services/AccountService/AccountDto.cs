@@ -1,23 +1,24 @@
-using AccountsBackend.BusinesLogic.Mapping;
+using AccountsBackend.BusinessLogic.Mappings;
 using AccountsBackend.Data.Models;
 using AutoMapper;
 
-namespace AccountsBackend.BusinesLogic;
-
-public class AccountDto : IMapWith<Account>
+namespace AccountsBackend.BusinessLogic.Services.AccountService
 {
-    public string? Number { get; set; }
-    public string? Currency { get; set; } 
-    public decimal? Balance { get; set; }
-
-    public void Mapping(Profile profile)
+    public class AccountDto : IMapWith<Account>
     {
-        profile.CreateMap<Account, AccountDto>()
-            .ForMember(g => g.Number, 
-                opt => opt.MapFrom(a => a.Number))
-            .ForMember(g => g.Currency,
-                opt => opt.MapFrom(a => a.Currency.Code))
-            .ForMember(g => g.Balance,
-                opt => opt.MapFrom(a => a.Balance));
-    }   
+        public string? Number { get; set; }
+        public string? Currency { get; set; } 
+        public decimal? Balance { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<Account, AccountDto>()
+                .ForMember(g => g.Number, 
+                    opt => opt.MapFrom(a => a.Number))
+                .ForMember(g => g.Currency,
+                    opt => opt.MapFrom(a => a.Currency.Code))
+                .ForMember(g => g.Balance,
+                    opt => opt.MapFrom(a => a.Balance));
+        }   
+    }
 }

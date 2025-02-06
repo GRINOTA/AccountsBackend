@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Identity;
+using AccountsBackend.BusinessLogic.Services.AuthService;
 using Microsoft.AspNetCore.Mvc;
-using AccountsBackend.BusinesLogic;
 
-namespace AccountsBackend.WebAPI;
+namespace AccountsBackend.WebAPI.Controller;
 
 [ApiController]
 [Route("api/[controller]")]

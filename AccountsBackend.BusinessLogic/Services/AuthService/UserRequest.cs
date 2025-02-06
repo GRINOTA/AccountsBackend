@@ -1,7 +1,9 @@
-namespace AccountsBackend.BusinesLogic;
-
-public class UserRequest
+namespace AccountsBackend.BusinessLogic.Services.AuthService
 {
-    public string? Login { get; set; }
-    public string? Password { get; set;}
+    public class UserRequest
+    {
+        public string? Login { get; set; }
+        public string? Password { get; set;}
+    }
 }
+

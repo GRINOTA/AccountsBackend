@@ -1,10 +1,10 @@
 using AccountsBackend.Data;
-using AccountsBackend.BusinesLogic;
-using AccountsBackend.BusinesLogic.Mapping;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using AccountsBackend.BusinessLogic;
+using AccountsBackend.BusinessLogic.Mappings;
 
 namespace AccountsBackend.WebAPI;
 

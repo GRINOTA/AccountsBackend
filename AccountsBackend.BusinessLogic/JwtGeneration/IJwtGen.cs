@@ -1,8 +1,10 @@
 using AccountsBackend.Data.Models;
 
-namespace AccountsBackend.BusinesLogic;
-
-public interface IJwtGen
+namespace AccountsBackend.BusinessLogic.JwtGeneration
 {
-    string Token(User user);
+    public interface IJwtGen
+    {
+        string Token(User user);
+    }
 }
+

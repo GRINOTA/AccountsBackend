@@ -1,12 +1,13 @@
 using AccountsBackend.Data.Models;
 
-namespace AccountsBackend.Data;
-
-public interface IUserRepository 
+namespace AccountsBackend.Data.Repositories.UserRepository
 {
-    Task CreateUserAsync(User user, CancellationToken cancellationToken);
+    public interface IUserRepository 
+    {
+        Task CreateUserAsync(User user, CancellationToken cancellationToken);
 
-    Task<User?> GetUserByLoginAsync(string login, string password, CancellationToken cancellationToken);
+        Task<User?> GetUserByLoginAsync(string login, string password, CancellationToken cancellationToken);
 
-    Task<User> GetUserByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task<User> GetUserByIdAsync(int id, CancellationToken cancellationToken = default);
+    }
 }

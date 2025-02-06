@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using AccountsBackend.BusinesLogic;
 using Microsoft.AspNetCore.Authorization;
+using AccountsBackend.BusinessLogic.Services.CurrencyService;
 
-namespace AccountsBackend.WebAPI;
+namespace AccountsBackend.WebAPI.Controller;
 
 [ApiController]
 [Route("api/[controller]")]

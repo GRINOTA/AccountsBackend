@@ -1,7 +1,9 @@
-namespace AccountsBackend.BusinesLogic;
-
-public interface ICurrencyService
+namespace AccountsBackend.BusinessLogic.Services.CurrencyService
 {
-    Task<List<CurrencyDto>?> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<CurrencyDto?> GetByIdAsync(int currencyId, CancellationToken cancellationToken = default);   
+    public interface ICurrencyService
+    {
+        Task<List<CurrencyDto>?> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<CurrencyDto?> GetByIdAsync(int currencyId, CancellationToken cancellationToken = default);   
+    }
 }
+
