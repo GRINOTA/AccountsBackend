@@ -1,4 +1,7 @@
-﻿namespace AccountsBackend.Data.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace AccountsBackend.Data.Models;
 
 public partial class Currency
 {
