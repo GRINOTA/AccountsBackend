@@ -4,6 +4,8 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using AccountsBackend.Data.Models;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Http;
 
 namespace AccountsBackend.BusinessLogic.JwtGeneration
 {
@@ -16,7 +18,7 @@ namespace AccountsBackend.BusinessLogic.JwtGeneration
             _configuration = configuration;
         }
 
-        public string Token(User user)
+        public string GenAccessToken(User user)
         {
             var issuer = _configuration["JwtConfig:Issuer"];
             var audience = _configuration["JwtConfig:Audience"];
@@ -28,8 +30,8 @@ namespace AccountsBackend.BusinessLogic.JwtGeneration
             {
                 Subject = new ClaimsIdentity(new[] 
                 {
-                    new Claim(JwtRegisteredClaimNames.Name, user.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Login)
+                    new Claim(JwtRegisteredClaimNames.Name, user.Login),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
                 }),
                 Expires = tokenExpiryTimeStamp,
                 Issuer = issuer,
@@ -44,6 +46,16 @@ namespace AccountsBackend.BusinessLogic.JwtGeneration
             var securityToken = tokenHandler.CreateToken(tokenDescription);
 
             return tokenHandler.WriteToken(securityToken);
+        }
+
+        public string GetRefreshToken()
+        {
+            var random = new byte[32];
+            using (var gen = new RNGCryptoServiceProvider())
+            {
+                gen.GetBytes(random);
+                return Convert.ToBase64String(random);
+            }
         }
     }
 }

@@ -4,7 +4,8 @@ namespace AccountsBackend.BusinessLogic.JwtGeneration
 {
     public interface IJwtGen
     {
-        string Token(User user);
+        string GenAccessToken(User user);
+        string GetRefreshToken();
     }
 }
 

@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using AccountsBackend.BusinessLogic.Services.AuthService;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountsBackend.WebAPI.Controller;
@@ -7,6 +9,14 @@ namespace AccountsBackend.WebAPI.Controller;
 [Route("api/[controller]")]
 public class AuthController(IAuthService authService) : ControllerBase
 {
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        // await HttpContext.SignOutAsync();
+        Response.Cookies.Delete("cool-cookies");
+        return NoContent();
+    }
+
     [HttpPost("login")]
     public async Task<ActionResult<string>> LoginAsync(UserRequest request) 
     {
@@ -15,7 +25,13 @@ public class AuthController(IAuthService authService) : ControllerBase
         if (result is null)
             return Unauthorized();
         
-        Response.Cookies.Append("cool-cookies", result);
+        Response.Cookies.Append("cool-cookies", result, new CookieOptions{
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddMinutes(30)
+        });
+        
         return result;
     }
 
@@ -26,10 +42,12 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok();
     }  
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserByIdAsync ([FromRoute] int id)
+    [HttpGet("profile")]
+    public async Task<IActionResult?> GetUserByIdAsync ()
     {
-        var result = await authService.GetUserByIdAsync(id);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var result = await authService.GetUserByIdAsync(Convert.ToInt32(userId));
         return Ok(result);
+            
     }
 }

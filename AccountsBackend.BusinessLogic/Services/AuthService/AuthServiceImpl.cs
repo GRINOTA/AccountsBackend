@@ -4,6 +4,7 @@ using CryptSharp;
 using AutoMapper;
 using AccountsBackend.BusinessLogic.JwtGeneration;
 using AccountsBackend.Data.Repositories.UserRepository;
+using System.Runtime.InteropServices;
 
 namespace AccountsBackend.BusinessLogic.Services.AuthService
 {
@@ -36,7 +37,7 @@ namespace AccountsBackend.BusinessLogic.Services.AuthService
         }
 
         public async Task<string?> LoginUserAsync(UserRequest userRequest, CancellationToken cancellationToken = default)
-        {
+        {   
             if(string.IsNullOrWhiteSpace(userRequest.Login) || string.IsNullOrWhiteSpace(userRequest.Password))
                 return null;
 
@@ -44,8 +45,8 @@ namespace AccountsBackend.BusinessLogic.Services.AuthService
 
             if (user is null || Crypter.CheckPassword(userRequest.Password, user.Password) == false)
                 return null;
-
-            return _jwtGen.Token(user);
+                
+            return _jwtGen.GenAccessToken(user);
         }
 
         public async Task<UserDto?> GetUserByIdAsync(int id, CancellationToken cancellationToken = default)

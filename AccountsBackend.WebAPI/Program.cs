@@ -19,6 +19,9 @@ public class Program
 
         builder.Services.AddDataAccess(configuration);
         builder.Services.AddBusinessLogic();
+
+        builder.Services.AddDistributedMemoryCache();
+
         builder.Services.AddControllers();
 
         builder.Services.AddAutoMapper(cfg => 
@@ -33,7 +36,7 @@ public class Program
             opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(opt =>
         {
-            opt.RequireHttpsMetadata = true;  
+            opt.RequireHttpsMetadata = false;  
             opt.SaveToken = true;
             opt.TokenValidationParameters = new TokenValidationParameters
             {
@@ -44,8 +47,8 @@ public class Program
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true
-            };  
-
+            };
+            
             opt.Events = new JwtBearerEvents
             {
                 OnMessageReceived = context =>
@@ -96,15 +99,6 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
-        app.Use(async (context, next) =>
-        {
-            var token = context.Request.Cookies["cool-cookies"];
-            if(!string.IsNullOrEmpty(token))
-                context.Request.Headers.Add("Authorization", "Bearer " + token);
-
-            await next();
-        });
 
         app.UseAuthentication();
         app.UseAuthorization();

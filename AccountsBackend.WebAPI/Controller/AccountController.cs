@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using AccountsBackend.BusinessLogic.Services.AccountService;
+using System.Security.Claims;
 
 namespace AccountsBackend.WebAPI.Controller;
 
@@ -9,17 +10,19 @@ namespace AccountsBackend.WebAPI.Controller;
 [Authorize]
 public class AccountController(IAccountService accountService) : ControllerBase
 {
-    [HttpGet("users/{idUser:int}")]
-    public async Task<IActionResult> GetByUserIdAsync([FromRoute]int idUser)
+    [HttpGet("users")]
+    public async Task<IActionResult> GetByUserIdAsync()
     {
-        var result = await accountService.GetByUserIdAsync(idUser);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var result = await accountService.GetByUserIdAsync(Convert.ToInt32(userId));
         return Ok(result);
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(int idUser, int idCurrency) 
+    public async Task<IActionResult> CreateAsync(int idCurrency) 
     {
-        await accountService.CreateAsync(idUser, idCurrency);  
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        await accountService.CreateAsync(Convert.ToInt32(userId), idCurrency);  
         return NoContent();    
     }
 

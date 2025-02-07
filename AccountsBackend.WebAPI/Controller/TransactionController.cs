@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using AccountsBackend.BusinessLogic.Services.TransactionService;
+using System.Security.Claims;
 
 namespace AccountsBackend.WebAPI.Controller;
 
@@ -16,10 +17,11 @@ public class TransactionController(ITransactionService transactionService) : Con
         return NoContent();
     }
 
-    [HttpGet("{userId}")]
-    public async Task<IActionResult> GetByUserIdAsync([FromRoute] int userId)
+    [HttpGet]
+    public async Task<IActionResult> GetByUserIdAsync()
     {
-        var result = await transactionService.GetByUserIdAsync(userId);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var result = await transactionService.GetByUserIdAsync(Convert.ToInt32(userId));
         return Ok(result);
     }
 }
