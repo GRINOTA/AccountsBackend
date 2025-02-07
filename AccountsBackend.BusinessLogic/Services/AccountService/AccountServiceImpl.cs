@@ -18,6 +18,11 @@ namespace AccountsBackend.BusinessLogic.Services.AccountService
         
         public async Task CreateAsync(int userId, int currencyId, CancellationToken cancellationToken = default)
         {
+            var countAccount = _accountRepository.GetByUserIdAsync(userId, cancellationToken).Result.Count;
+
+            if(countAccount >= 5)
+                throw new Exception("Ограничение по количеству счетов 5.");
+
             string timePart = DateTime.Now.Ticks.ToString();
             Random random = new Random();
             string randomPart = new string(Enumerable.Repeat("0123456789", 20 - timePart.Length).Select(s => s[random.Next(s.Length)]).ToArray());
