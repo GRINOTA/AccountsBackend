@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AccountsBackend.BusinessLogic.Services.AuthService;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountsBackend.WebAPI.Controller;
@@ -42,6 +43,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok();
     }  
 
+    [Authorize]
     [HttpGet("profile")]
     public async Task<IActionResult?> GetUserByIdAsync ()
     {

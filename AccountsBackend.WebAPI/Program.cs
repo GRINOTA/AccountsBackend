@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using AccountsBackend.BusinessLogic;
 using AccountsBackend.BusinessLogic.Mappings;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace AccountsBackend.WebAPI;
 
@@ -23,6 +24,11 @@ public class Program
         builder.Services.AddDistributedMemoryCache();
 
         builder.Services.AddControllers();
+
+        builder.Services.AddSpaStaticFiles(config => 
+        {
+            config.RootPath = "accounts-frontend/dist";
+        });
 
         builder.Services.AddAutoMapper(cfg => 
         {
@@ -92,20 +98,40 @@ public class Program
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
+        app.UseStaticFiles();
+
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+            app.UseSpaStaticFiles();
         }
 
-        app.UseHttpsRedirection();
+        app.UseRouting();
 
         app.UseAuthentication();
         app.UseAuthorization();
 
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+
         app.MapControllers();
         app.UseSwagger();
         app.UseSwaggerUI();
+
+        app.UseWebSockets();
+        app.UseSpa(spa => 
+        {
+            spa.Options.SourcePath = "accounts-frontend";
+
+            if(app.Environment.IsDevelopment())
+            {
+                spa.UseProxyToSpaDevelopmentServer("http://localhost:8080/");
+            }
+        });
+
+        app.UseHttpsRedirection();
         
         app.Run();
     }
