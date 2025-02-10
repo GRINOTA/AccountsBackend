@@ -6,6 +6,7 @@ namespace AccountsBackend.BusinessLogic.Services.AccountService
 {
     public class AccountDto : IMapWith<Account>
     {
+        public int Id { get; set; }
         public string? Number { get; set; }
         public string? Currency { get; set; } 
         public decimal? Balance { get; set; }
@@ -13,6 +14,8 @@ namespace AccountsBackend.BusinessLogic.Services.AccountService
         public void Mapping(Profile profile)
         {
             profile.CreateMap<Account, AccountDto>()
+                .ForMember(g => g.Id,
+                    opt => opt.MapFrom(a => a.Id))
                 .ForMember(g => g.Number, 
                     opt => opt.MapFrom(a => a.Number))
                 .ForMember(g => g.Currency,

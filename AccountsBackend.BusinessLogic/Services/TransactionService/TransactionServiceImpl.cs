@@ -1,7 +1,9 @@
 using AccountsBackend.Data;
+using AccountsBackend.Data.DataContext;
 using AccountsBackend.Data.Models;
 using AccountsBackend.Data.Repositories.TransactionRepository;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountsBackend.BusinessLogic.Services.TransactionService
 {
@@ -9,19 +11,27 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
+        private readonly AccountsContext _context;
 
-        public TransactionServiceImpl(ITransactionRepository transactionRepository, IMapper mapper)
+        public TransactionServiceImpl(
+            ITransactionRepository transactionRepository, 
+            IMapper mapper, 
+            AccountsContext context)
         {
             _transactionRepository = transactionRepository;
             _mapper = mapper;
+            _context = context;
         }   
 
-        public async Task CreateAsync(int idSenderAccount, int idRecipientAccount, decimal amount, CancellationToken cancellationToken = default)
+        public async Task CreateAsync(string numberSenderAccount, string numberRecipientAccount, decimal amount, CancellationToken cancellationToken = default)
         {
+            var senderAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Number == numberSenderAccount);
+            var recipientAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Number == numberRecipientAccount);
+            
             Transaction transaction = new Transaction 
             {
-                SenderAccountId = idSenderAccount,
-                RecipientAccountId = idRecipientAccount,
+                SenderAccountId = senderAccount.Id,
+                RecipientAccountId = recipientAccount.Id,
                 Amount = amount
             };           
 

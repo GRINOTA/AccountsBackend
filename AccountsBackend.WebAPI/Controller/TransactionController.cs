@@ -11,9 +11,9 @@ namespace AccountsBackend.WebAPI.Controller;
 public class TransactionController(ITransactionService transactionService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(int idSenderAccount, int idRecipientAccount, decimal amount) 
+    public async Task<IActionResult> CreateAsync(string numberSenderAccount, string numberRecipientAccount, decimal amount) 
     {
-        await transactionService.CreateAsync(idSenderAccount, idRecipientAccount, amount);
+        await transactionService.CreateAsync(numberSenderAccount, numberRecipientAccount, amount);
         return NoContent();
     }
 
