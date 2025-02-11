@@ -6,6 +6,8 @@ using Microsoft.OpenApi.Models;
 using AccountsBackend.BusinessLogic;
 using AccountsBackend.BusinessLogic.Mappings;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using System.Web.Http.Cors;
+using System.Web.Http;
 
 namespace AccountsBackend.WebAPI;
 
@@ -13,11 +15,21 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        
+        var cors = new EnableCorsAttribute("*", "*", "*");
+        var httpConfig = new HttpConfiguration();
+
+        httpConfig.EnableCors(cors);
+        httpConfig.MapHttpAttributeRoutes();
+        httpConfig.Routes.MapHttpRoute(
+            name: "DefaultApi", 
+            routeTemplate: "api/{controller}/{id}", 
+            defaults: new {id = RouteParameter.Optional});
+
         var builder = WebApplication.CreateBuilder(args);
 
         var configuration = builder.Configuration;
 
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddDataAccess(configuration);
         builder.Services.AddBusinessLogic();
 
@@ -27,7 +39,15 @@ public class Program
 
         builder.Services.AddSpaStaticFiles(config => 
         {
-            config.RootPath = "accounts-frontend/dist";
+            config.RootPath = "../accounts-frontend/dist";
+        });
+
+        builder.Services.AddCors(option => 
+        {
+            option.AddPolicy("MyCorsPolicy", builder =>
+            {
+                builder.WithOrigins("http://localhost:8080").AllowAnyMethod().AllowAnyHeader();
+            });
         });
 
         builder.Services.AddAutoMapper(cfg => 
@@ -123,11 +143,11 @@ public class Program
         app.UseWebSockets();
         app.UseSpa(spa => 
         {
-            spa.Options.SourcePath = "accounts-frontend";
+            spa.Options.SourcePath = "../accounts-frontend";
 
             if(app.Environment.IsDevelopment())
             {
-                spa.UseProxyToSpaDevelopmentServer("http://localhost:8080/");
+                spa.UseProxyToSpaDevelopmentServer("http://localhost:8080");
             }
         });
 

@@ -1,6 +1,8 @@
+import CreateAccount from "../views/createAccount.vue"
 import AuthService from "../services/authService"
-import AuthView from "../views/AuthView.vue"
-import HomeView from "../views/HomeView.vue"
+import AuthView from "../views/authView.vue"
+import HomeView from "../views/homeView.vue"
+import TransactionView from "../views/transactionView.vue"
 import { createRouter, createWebHashHistory } from "vue-router"
 
 
@@ -18,6 +20,8 @@ const routes = [
         // },
         component: HomeView
     },
+    {path: '/create', component: CreateAccount},
+    {path: '/transaction', component: TransactionView}
 ]
 
 const router = createRouter({history: createWebHashHistory(), routes})

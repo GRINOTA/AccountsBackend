@@ -1,0 +1,38 @@
+<template>
+    <div>
+        <fieldset>
+            <legend>Открытие счета</legend>
+            <div class="mb-3">
+                <label for="select" class="form-label">Валюта счета</label>
+                <select id="select" class="form-select" v-model.number="selectedCurrency">
+                    <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
+                        {{currency.codeCurrency}}
+                    </option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" @click="openAccount">Открыть счет</button>            
+        </fieldset>
+    </div>
+</template>
+
+<script>
+    import CurrencyService from '../services/currencyService';
+    import AccountsService from '../services/accountsService';
+
+    export default {
+        data() {
+            return {
+                currencies: [],
+                selectedCurrency: null,
+            }
+        },
+        async mounted() {
+            this.currencies = await CurrencyService.getAllCurrency()
+        },
+        methods: {
+            async openAccount() {
+                await AccountsService.createAccount()
+            },
+        }
+    }
+</script>

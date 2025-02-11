@@ -1,1 +1,8 @@
-{}
+{
+    "csharp.debug.logging.diagnosticsLog.debugEngineAPITracing": "all",
+    "csharp.debug.logging.diagnosticsLog.debugRuntimeEventTracing": true,
+    "csharp.debug.logging.diagnosticsLog.dispatcherMessages": "error",
+    "csharp.debug.logging.diagnosticsLog.expressionEvaluationTracing": true,
+    "csharp.debug.logging.diagnosticsLog.protocolMessages": true,
+    "csharp.debug.logging.diagnosticsLog.startDebuggingTracing": true
+}

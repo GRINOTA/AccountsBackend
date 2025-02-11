@@ -8,6 +8,27 @@ class AccountsService {
             .get(API_URL + '/Account/users');
         return responce.data
     }
+
+    async createAccount() {
+        await axios.post(
+            API_URL + '/Account', 
+            {idCurrency: 1},
+            {headers: {'Content-Type': 'application/json'}}
+        ).then(responce => {
+            console.log(responce.data)
+        }).catch(error => {
+            if(error.responce) {
+                console.error("Ошибка сервера: ", error.responce.data)
+                console.error("Код статуса: ", error.responce.status)
+            } else if(error.request) {
+                console.error("Запрос отправлен, ответ не получен: ", error.request)
+            } else {
+                console.error("Ошибка при настройке запроса: ", error.message)
+            }
+            
+        })
+        // return null;
+    }
 }
 
 export default new AccountsService()
