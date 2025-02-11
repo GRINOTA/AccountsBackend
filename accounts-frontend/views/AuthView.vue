@@ -28,8 +28,8 @@
         data() {
             return {
                 user: {
-                    login: 'grinch',
-                    password: '12345'
+                    login: null,
+                    password: null
                 }
                 
             }

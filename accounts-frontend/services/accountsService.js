@@ -11,8 +11,7 @@ class AccountsService {
 
     async createAccount() {
         await axios.post(
-            API_URL + '/Account', 
-            {idCurrency: 1},
+            API_URL + '/Account', 1,
             {headers: {'Content-Type': 'application/json'}}
         ).then(responce => {
             console.log(responce.data)

@@ -5,6 +5,7 @@ using AutoMapper;
 using AccountsBackend.BusinessLogic.JwtGeneration;
 using AccountsBackend.Data.Repositories.UserRepository;
 using System.Runtime.InteropServices;
+using BCrypt.Net;
 
 namespace AccountsBackend.BusinessLogic.Services.AuthService
 {
