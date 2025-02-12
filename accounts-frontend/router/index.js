@@ -3,6 +3,7 @@ import AuthService from "../services/authService"
 import AuthView from "../views/authView.vue"
 import HomeView from "../views/homeView.vue"
 import TransactionView from "../views/transactionView.vue"
+import ReportView from "../views/reportView.vue"
 import { createRouter, createWebHashHistory } from "vue-router"
 
 
@@ -21,7 +22,8 @@ const routes = [
         component: HomeView
     },
     {path: '/create', component: CreateAccount},
-    {path: '/transaction', component: TransactionView}
+    {path: '/transaction', component: TransactionView},
+    {path: '/report', component: ReportView},
 ]
 
 const router = createRouter({history: createWebHashHistory(), routes})

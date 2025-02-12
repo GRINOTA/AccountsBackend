@@ -24,7 +24,7 @@
         <div style="display: flex; gap: 2%; justify-content: center;">
             <button type="button" class="btn btn-primary" @click="goCreate">Открыть новый счёт</button>
             <button type="button" class="btn btn-primary" @click="goTransaction">Перевод</button>
-            <button type="button" class="btn btn-primary">Отчёт</button>    
+            <button type="button" class="btn btn-primary" @click="goReport">Отчёт</button>    
         </div>
     </div>
 </template>
@@ -52,8 +52,10 @@
             },
             goTransaction() {
                 this.$router.push('/transaction')
+            },
+            goReport() {
+                this.$router.push('/report')
             }
         }
     }
-
 </script>

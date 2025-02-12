@@ -20,6 +20,10 @@ class TransactionService {
                 } 
             });
     }
+    async getTransaction() {
+        const responce = await axios.get(API_URL + 'Transaction');
+        return responce.data
+    }
 }
 
 export default new TransactionService()
