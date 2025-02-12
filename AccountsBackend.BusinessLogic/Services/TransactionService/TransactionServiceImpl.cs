@@ -23,19 +23,24 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
             _context = context;
         }   
 
-        public async Task CreateAsync(string numberSenderAccount, string numberRecipientAccount, decimal amount, CancellationToken cancellationToken = default)
+        public async Task CreateAsync(TransactionRequest transactionRequest, CancellationToken cancellationToken = default)
         {
-            var senderAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Number == numberSenderAccount);
-            var recipientAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Number == numberRecipientAccount);
+            var senderAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Number == transactionRequest.numberSenderAccount);
+            var recipientAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Number == transactionRequest.numberRecipientAccount);
             
-            Transaction transaction = new Transaction 
+            if(senderAccount != null && recipientAccount != null)
             {
-                SenderAccountId = senderAccount.Id,
-                RecipientAccountId = recipientAccount.Id,
-                Amount = amount
-            };           
+                if(senderAccount.Id != recipientAccount.Id) {
+                    Transaction transaction = new Transaction 
+                    {
+                        SenderAccountId = senderAccount.Id,
+                        RecipientAccountId = recipientAccount.Id,
+                        Amount = transactionRequest.amount
+                    };           
 
-            await _transactionRepository.CreateAsync(transaction, cancellationToken);
+                    await _transactionRepository.CreateAsync(transaction, cancellationToken);
+                }
+            }
         }
 
         public async Task<List<TransactionDto>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
