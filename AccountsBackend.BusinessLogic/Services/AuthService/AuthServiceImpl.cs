@@ -22,16 +22,16 @@ namespace AccountsBackend.BusinessLogic.Services.AuthService
             _mapper = mapper;
         }
 
-        public async Task RegisterUserAsync(string surname, string firstName, string? middleName, string login, string password, CancellationToken cancellationToken = default)
+        public async Task RegisterUserAsync(UserRegisterRequest userRequest, CancellationToken cancellationToken = default)
         {
 
             User user = new User
             {
-                Surname = surname,
-                FirstName = firstName,
-                MiddleName = middleName,
-                Login = login,
-                Password = Crypter.Blowfish.Crypt(password, Crypter.Blowfish.GenerateSalt(12))
+                Surname = userRequest.Surname,
+                FirstName = userRequest.FirstName,
+                MiddleName = userRequest.MiddleName,
+                Login = userRequest.Login,
+                Password = Crypter.Blowfish.Crypt(userRequest.Password, Crypter.Blowfish.GenerateSalt(12))
             };
 
             await _userRepository.CreateUserAsync(user, cancellationToken);
