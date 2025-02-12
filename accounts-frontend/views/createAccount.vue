@@ -31,7 +31,7 @@
         },
         methods: {
             async openAccount() {
-                await AccountsService.createAccount()
+                await AccountsService.createAccount(this.selectedCurrency)
             },
         }
     }

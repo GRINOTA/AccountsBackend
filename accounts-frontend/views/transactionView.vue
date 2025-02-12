@@ -3,31 +3,42 @@
         <form>
             <fieldset>
                 <legend>Перевод средств</legend>
-
+                <div class="md-3">
+                    <label class="form-label">Тип перевода</label>
+                    <select class="form-select" v-model="transactionType">
+                        <option value="own">Между своими</option>
+                        <option value="other">На чужой счет</option>
+                    </select>
+                </div>
                 <div class="mb-3">
                     <label for="disabledSelect" class="form-label">Счет отправителя</label>
-                    <select id="disabledSelect" class="form-select" v-model="numberSenderAccount">
+                    <select id="disabledSelect" class="form-select" v-model="transaction.numberSenderAccount">
                         <option v-for="account in selectedAccounts" :key="account.number" :value="account.number">
                             {{account.number}}
                         </option>
                     </select>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3" v-if="transactionType === 'own'">
                     <label for="disabledSelect" class="form-label">Счет получателя</label>
-                    <select id="disabledSelect" class="form-select" v-model="numberRecipientAccount">
+                    <select id="disabledSelect" class="form-select" v-model="transaction.numberRecipientAccount">
                         <option v-for="account in filteredAccounts" :key="account.number" :value="account.number">
                             {{account.number}}
                         </option>
                     </select>
                 </div>
 
+                <div class="mb-3" v-if="transactionType === 'other'">
+                    <label for="disabledSelect" class="form-label" v-if="transactionType === 'other'">Счет получателя</label>
+                    <input type="text" class="form-control" v-model="transaction.numberRecipientAccount">
+                </div>
+
                 <div class="mb-3">
                     <label class="form-label">Сколько</label>
-                    <input class="form-control" v-model.number="amount"/>
+                    <input class="form-control" v-model.number="transaction.amount"/>
                 </div>
                 
-                <button type="submit" class="btn btn-primary" @click="sendMoney">Перевести</button>
+                <button type="submit" class="btn btn-primary" @click="createTransaction">Перевести</button>
             </fieldset>
         </form> 
     </div>
@@ -35,27 +46,32 @@
 
 <script>
     import AccountsService from '../services/accountsService';
+    import TransactionService from '../services/transactionService';
     
     export default {
         data() {
             return {
                 selectedAccounts: [],
-                numberSenderAccount: null, 
-                numberRecipientAccount: null, 
-                amount: null    
+                transaction: {
+                    numberSenderAccount: null, 
+                    numberRecipientAccount: null, 
+                    amount: null
+                },
+                transactionType: 'own'
             }
         },
         computed: {
             filteredAccounts() {
-                return this.selectedAccounts.filter(account => account.number !== this.numberSenderAccount)
+                return this.selectedAccounts.filter(account => account.number !== this.transaction.numberSenderAccount)
             }
-
         },
         async mounted() {
             this.selectedAccounts = await AccountsService.getAccountsList()
         },
         methods: {
-            
+            async createTransaction() {
+                await TransactionService.createTransaction(this.transaction)
+            }
         }
     }
 </script>
