@@ -17,14 +17,18 @@ import LineChart from '../components/LineChart.vue'
                 chartOptions: {
                     xAxis: {
                         type: 'category',
-                        date: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                        date: ['Mon']
                     },
                     yAxis: {
                         type: 'value'
                     },
                     series: [
                         {
-                            data: [120, 200, 150, 80, 70, 110],
+                            data: [120, 130, 453],
+                            type: 'line'
+                        },
+                        {
+                            data: [123, 13, 453],
                             type: 'line'
                         }
                     ]
