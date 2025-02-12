@@ -12,6 +12,11 @@ class AuthService {
         return responce.data;
     }
 
+    async register(userRequest) {
+        const responce = await axios.post(API_URL + '/Auth/register', userRequest);
+        return responce.data
+    }
+
     async logout() {
         localStorage.removeItem('token')
     }
