@@ -43,11 +43,65 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
             }
         }
 
-        public async Task<List<TransactionDto>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
+        public async Task<List<AccountMovementDto>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
         {
-            var transaction = await _transactionRepository.GetByUserIdAsync(userId, cancellationToken);
+            var transactions = await _transactionRepository.GetByUserIdAsync(userId, cancellationToken);
+            var transactionDto = _mapper.Map<List<TransactionDto>>(transactions);
 
-            return _mapper.Map<List<TransactionDto>>(transaction);
+            var accounts = new Dictionary<string, AccountMovementDto>();
+
+            foreach(var transaction in transactionDto) 
+            {
+                if(transaction.Sender != null) 
+                {
+                    if(!accounts.ContainsKey(transaction.Recipient.AccountNumber)) 
+                    {
+                        accounts[transaction.Sender.AccountNumber] = new AccountMovementDto
+                        {
+                            AccountNumber = transaction.Sender.AccountNumber,
+                            IdCurrency = transaction.Sender.IdCurrency,
+                            Currency = transaction.Sender.Currency,
+                            Balance = transaction.Sender.Balance,
+                            Movements = new List<MovementDto>()
+                        };
+
+                        accounts[transaction.Sender.AccountNumber].Balance -= transaction.Amount;
+                        accounts[transaction.Sender.AccountNumber].Movements.Add(new MovementDto
+                        {
+                            Date = transaction.Date,
+                            Amount = -transaction.Amount,
+                            Balance = accounts[transaction.Sender.AccountNumber].Balance,
+                            RecipientAccountNumber = transaction.RecipientNumber
+                        });
+
+                    }
+                }
+
+                if(transaction.Recipient != null) 
+                {
+                    if(!accounts.ContainsKey(transaction.Recipient.AccountNumber)) 
+                    {
+                        accounts[transaction.Recipient.AccountNumber] = new AccountMovementDto
+                        {
+                            AccountNumber = transaction.Recipient.AccountNumber,
+                            Currency = transaction.Recipient.Currency,
+                            Balance = transaction.Recipient.Balance,
+                            Movements = new List<MovementDto>()
+                        };
+                    }
+
+                    accounts[transaction.Recipient.AccountNumber].Balance += transaction.Amount;
+                    accounts[transaction.Recipient.AccountNumber].Movements.Add(new MovementDto
+                    {
+                        Date = transaction.Date,
+                        Amount = transaction.Amount,
+                        Balance = accounts[transaction.Recipient.AccountNumber].Balance,
+                        RecipientAccountNumber = transaction.RecipientNumber
+                    });
+                }
+            }
+
+            return accounts.Values.ToList();
         }
     }
 }
