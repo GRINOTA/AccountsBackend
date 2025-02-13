@@ -1,5 +1,6 @@
 using AccountsBackend.Data.DataContext;
 using AccountsBackend.Data.Repositories.AccountRepository;
+using AccountsBackend.Data.Repositories.CurrencyRatesRepository;
 using AccountsBackend.Data.Repositories.CurrencyRepository;
 using AccountsBackend.Data.Repositories.TransactionRepository;
 using AccountsBackend.Data.Repositories.UserRepository;
@@ -22,6 +23,7 @@ public static class Extensions
         serviceCollection.AddScoped<ITransactionRepository, TransactionRepositoryImpl>();
         serviceCollection.AddScoped<IUserRepository, UserRepositryImpl>();
         serviceCollection.AddScoped<ICurrencyRepository, CurrencyRepositoryImpl>();
+        serviceCollection.AddScoped<ICurrencyRatesRepository, CurrencyRatesRepositoryImpl>();
 
         return serviceCollection;
     }
