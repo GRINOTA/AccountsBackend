@@ -21,7 +21,7 @@ class TransactionService {
             });
     }
     async getTransaction() {
-        const responce = await axios.get(API_URL + 'Transaction');
+        const responce = await axios.get(API_URL + '/Transaction');
         return responce.data
     }
 }
