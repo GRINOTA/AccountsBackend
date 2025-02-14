@@ -3,7 +3,7 @@
         <div>
             <legend>Отчет по движениям средств</legend>
             <div class="mb-3">
-                <label for="select" class="form-label">Показывать в валюте</label>
+                <label for="select" class="form-label">Конвертировать в валюту</label>
                 <select id="select" class="form-select" v-model.number="selectedCurrency">
                     <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
                         {{currency.codeCurrency}}
@@ -15,8 +15,6 @@
                 <line-chart :options="lineChartOptions"></line-chart>
                 <!-- <line-chart :options="barChartOption"></line-chart> -->
             </div>
-            
-
         </div>
         <div>
             
@@ -129,24 +127,28 @@
                 for (const account of transactions) {
                     const seriesData = []
 
-                    // let currentBalance = account.balance
-
+                    let currentBalance = account.balance
+                    console.log(`CurrentBalance 1: ${currentBalance}`)
                     for (const movement of account.movements) {
-                        // let amount = movement.amount
-                        let balance = movement.balance
-
-                        // if(account.idCurrency !== this.selectedCurrency) {
-                            // amount = movement.amount * this.currencyRates
-                            // currentBalance = currentBalance * this.currencyRates
-                            balance = movement.balance * this.currencyRates
-                        // }
+                        let amount = movement.amount
+                        console.log(`Amount 1: ${amount}`)
                         
-                        // currentBalance += amount
+                        
 
+                        console.log(`CurrentBalance 2: ${currentBalance}`)
+
+                        if(account.idCurrency !== this.selectedCurrency && this.currencyRates) {
+                            amount = amount * this.currencyRates
+                            
+                            // currentBalance = currentBalance * this.currencyRates
+                            console.log(`Курс: ${this.currencyRates}`)
+                            console.log(`CurrentBalance 3: ${currentBalance}`)
+                            
+                        }
+                        currentBalance -= amount  
                         seriesData.push([
                             moment(movement.date).format('YYYY-MM-DD'),
-                            // amount,
-                            balance,
+                            currentBalance,
                             movement.recipientAccountNumber
                         ])
                     }
