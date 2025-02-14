@@ -24,7 +24,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                 .ForMember(dto => dto.Amount, 
                     opt => opt.MapFrom(t => t.Amount))
                 .ForMember(dto => dto.SenderBalance,
-                    opt => opt.MapFrom(t => t.SenderAccount.Balance))
+                    opt => opt.MapFrom(t => t.BalanceAccountSenderUpdate))
                 .ForMember(dto => dto.Sender,
                     opt => opt.MapFrom(t => t.SenderAccount))
                 .ForMember(dto => dto.Recipient, 

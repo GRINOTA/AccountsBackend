@@ -1,3 +1,4 @@
+using AccountsBackend.BusinessLogic.Services.AccountService;
 using AccountsBackend.Data;
 using AccountsBackend.Data.DataContext;
 using AccountsBackend.Data.Models;
@@ -54,7 +55,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
             {
                 if(transaction.Sender != null) 
                 {
-                    if(!accounts.ContainsKey(transaction.Recipient.AccountNumber)) 
+                    if(!accounts.ContainsKey(transaction.Sender.AccountNumber)) 
                     {
                         accounts[transaction.Sender.AccountNumber] = new AccountMovementDto
                         {
@@ -65,16 +66,17 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                             Movements = new List<MovementDto>()
                         };
 
-                        accounts[transaction.Sender.AccountNumber].Balance -= transaction.Amount;
-                        accounts[transaction.Sender.AccountNumber].Movements.Add(new MovementDto
-                        {
-                            Date = transaction.Date,
-                            Amount = -transaction.Amount,
-                            Balance = accounts[transaction.Sender.AccountNumber].Balance,
-                            RecipientAccountNumber = transaction.RecipientNumber
-                        });
+                        // accounts[transaction.Sender.AccountNumber].Balance -= transaction.Amount;
+                        
+                    };
 
-                    }
+                    accounts[transaction.Sender.AccountNumber].Movements.Add(new MovementDto
+                    {
+                        Date = transaction.Date,
+                        Amount = -transaction.Amount,
+                        // Balance = transaction.SenderBalance,
+                        RecipientAccountNumber = transaction.RecipientNumber
+                    });
                 }
 
                 if(transaction.Recipient != null) 
@@ -84,20 +86,26 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                         accounts[transaction.Recipient.AccountNumber] = new AccountMovementDto
                         {
                             AccountNumber = transaction.Recipient.AccountNumber,
+                            IdCurrency = transaction.Recipient.IdCurrency,
                             Currency = transaction.Recipient.Currency,
                             Balance = transaction.Recipient.Balance,
                             Movements = new List<MovementDto>()
                         };
+
+                       
                     }
 
-                    accounts[transaction.Recipient.AccountNumber].Balance += transaction.Amount;
                     accounts[transaction.Recipient.AccountNumber].Movements.Add(new MovementDto
                     {
                         Date = transaction.Date,
                         Amount = transaction.Amount,
-                        Balance = accounts[transaction.Recipient.AccountNumber].Balance,
-                        RecipientAccountNumber = transaction.RecipientNumber
+                        // Balance = transaction.SenderBalance,
+                        RecipientAccountNumber = transaction.Sender.AccountNumber
                     });
+
+
+                    // accounts[transaction.Recipient.AccountNumber].Balance += transaction.Amount;
+                    
                 }
             }
 

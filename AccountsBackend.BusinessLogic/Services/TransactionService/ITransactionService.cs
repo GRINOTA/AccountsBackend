@@ -1,3 +1,5 @@
+using AccountsBackend.BusinessLogic.Services.AccountService;
+
 namespace AccountsBackend.BusinessLogic.Services.TransactionService
 {
     public interface ITransactionService
