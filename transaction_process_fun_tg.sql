@@ -50,7 +50,7 @@ begin
 	update accounts 
 	set balance = balance + amount_convert
 	where accounts.id = new.recipient_account_id;
-
+	
 	return new;
 end;
 $$ LANGUAGE plpgsql;

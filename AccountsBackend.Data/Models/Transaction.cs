@@ -15,6 +15,8 @@ public partial class Transaction
 
     public DateTime Date { get; set; }
 
+    public decimal? BalanceAccountSenderUpdate { get; set; }
+
     public virtual Account RecipientAccount { get; set; } = null!;
 
     public virtual Account SenderAccount { get; set; } = null!;
