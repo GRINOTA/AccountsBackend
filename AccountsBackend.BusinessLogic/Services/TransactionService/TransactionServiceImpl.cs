@@ -1,7 +1,9 @@
 using AccountsBackend.BusinessLogic.Services.AccountService;
+using AccountsBackend.BusinessLogic.Services.CurrencyRatesService;
 using AccountsBackend.Data;
 using AccountsBackend.Data.DataContext;
 using AccountsBackend.Data.Models;
+using AccountsBackend.Data.Repositories.CurrencyRatesRepository;
 using AccountsBackend.Data.Repositories.TransactionRepository;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +15,18 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
         private readonly ITransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
         private readonly AccountsContext _context;
+        private readonly ICurrencyRatesService _currencyRatesService;
 
         public TransactionServiceImpl(
             ITransactionRepository transactionRepository, 
             IMapper mapper, 
-            AccountsContext context)
+            AccountsContext context,
+            ICurrencyRatesService currencyRatesService)
         {
             _transactionRepository = transactionRepository;
             _mapper = mapper;
             _context = context;
+            _currencyRatesService = currencyRatesService;
         }   
 
         public async Task CreateAsync(TransactionRequest transactionRequest, CancellationToken cancellationToken = default)
@@ -81,6 +86,14 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
 
                 if(transaction.Recipient != null) 
                 {
+                    decimal amountRecipient = transaction.Amount;
+                    
+                    if(transaction.Sender.IdCurrency != transaction.Recipient.IdCurrency) 
+                    {
+                        var getCurrentCurrencyRate = await _currencyRatesService.GetCurrencyRateByIdTargerCurrency(transaction.Recipient.IdCurrency);
+                        amountRecipient = getCurrentCurrencyRate.Rate * transaction.Amount;
+                    }
+
                     if(!accounts.ContainsKey(transaction.Recipient.AccountNumber)) 
                     {
                         accounts[transaction.Recipient.AccountNumber] = new AccountMovementDto
@@ -98,7 +111,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                     accounts[transaction.Recipient.AccountNumber].Movements.Add(new MovementDto
                     {
                         Date = transaction.Date,
-                        Amount = transaction.Amount,
+                        Amount = amountRecipient,
                         // Balance = transaction.SenderBalance,
                         RecipientAccountNumber = transaction.Sender.AccountNumber
                     });

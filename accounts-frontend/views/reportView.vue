@@ -9,7 +9,10 @@
                         {{currency.codeCurrency}}
                     </option>
                 </select>
-            </div>          
+            </div>   
+            <div>
+                <VueDatePicker v-model="date" range></VueDatePicker>
+            </div>       
 
             <div class="row justify-content-center">
                 <line-chart :options="lineChartOptions"></line-chart>
@@ -28,22 +31,27 @@
     import moment from 'moment'
     import CurrencyService from '../services/currencyService'
     import CurrencyRatesService from '../services/currencyRatesService'
+    import VueDatePicker from '@vuepic/vue-datepicker';
+    import '@vuepic/vue-datepicker/dist/main.css'
 
     export default {
         components: { 
-            LineChart
+            LineChart,
+            VueDatePicker
         },
         data() {
             return {
+                date: [],
                 selectedCurrency:  1,
                 currencies: [],
 
                 lineChartOptions: {
                     xAxis: {
                         type: 'time',
-                        name: 'Даты'
+                        name: 'Даты',
+                        // boundaryGap: false
                         // axisLabel: {
-                        //     formatter: 'yyyy-MM-dd'
+                        //     formatter: `yyyy-MM-dd`
                         // }
                     },
                     yAxis: {
@@ -61,23 +69,11 @@
                             xAxisIndex: 'none',
                             yAxisIndex: 0
                         },
-                        // {
-                        //    type: 'slider',
-                        //    start: 0,
-                        //    end: 100,
-                        //    xAxisIndex: 'none',
-                        //    yAxisIndex: 0
-                        // },
                         {
                             type: 'inside',
                             start: 0,
                             end:  100
                         },
-                        // {
-                        //    type: 'slider',
-                        //    start: 0,
-                        //    end: 100
-                        // }
                     ],
                     tooltip: {
                         trigger: 'axis',
@@ -94,7 +90,8 @@
                         data: []
                     },
                     series: [],
-                    currencyRates: null
+                    currencyRates: null,
+                    transactions: []
                 }
             }
         },
@@ -102,6 +99,13 @@
             selectedCurrency: {
                 handler: async function() {
                     await this.getTransaction()
+                    await this.updateChart();
+                }
+            },
+            date: {
+                handler: async function() {
+                    // await this.getTransaction()
+                    await this.updateChart();
                 }
             }
         },
@@ -109,50 +113,84 @@
             await this.getCurrencies()
             await this.getTransaction()
         },
+
         methods: {
             async getCurrencies() {
                 this.currencies = await CurrencyService.getAllCurrency()
             },
             async getTransaction() {
 
-                const transactions = await TransactionService.getTransaction()
+                this.transactions = await TransactionService.getTransaction()
                 
                 const rates = await CurrencyRatesService.getRateByTargetRate(this.selectedCurrency)
 
                 this.currencyRates = rates && rates.rate ? rates.rate : null
                 
-                const lineChartOptions = {...this.lineChartOptions}
-                lineChartOptions.series = []
+                
+                this.updateChart()
+            },
+            updateChart() {
+                const lineChartOptions = { ...this.lineChartOptions };
+                let startDate, endDate
 
-                for (const account of transactions) {
+                lineChartOptions.series = [];
+
+                if (!this.date || this.date.length !== 2) { 
+                    lineChartOptions.legend.data = [];
+                    delete lineChartOptions.xAxis.min; // Remove min property
+                    delete lineChartOptions.xAxis.max; // Remove max property
+                    this.lineChartOptions = lineChartOptions; 
+                } else {
+                    startDate = moment(this.date[0]);
+                    endDate = moment(this.date[1]);
+
+                    lineChartOptions.xAxis.min = startDate.valueOf();
+                    lineChartOptions.xAxis.max = endDate.valueOf();
+                }
+
+                
+
+                // lineChartOptions.series = []
+
+                for (const account of this.transactions) {
                     const seriesData = []
 
                     let currentBalance = account.balance
-                    console.log(`CurrentBalance 1: ${currentBalance}`)
-                    for (const movement of account.movements) {
-                        let amount = movement.amount
-                        console.log(`Amount 1: ${amount}`)
-                        
-                        
 
-                        console.log(`CurrentBalance 2: ${currentBalance}`)
+                    if (account.idCurrency !== this.selectedCurrency && this.currencyRates) {
+                        currentBalance = currentBalance * this.currencyRates
+                    }
+
+                    // фильтр движений по дате
+                    const filteredMovements = (this.date && this.date.length === 2) ? account.movements.filter(movement => {
+                        const movementDate = moment(movement.date);
+                        return movementDate.isBetween(startDate, endDate, null, '[]');
+                    }) : account.movements;
+
+                    const sortedMovements = filteredMovements.sort((a, b) => {
+                        const dateA = moment(a.date)
+                        const dateB = moment(b.date)
+                        return dateB - dateA
+                    });
+
+                    for (const movement of sortedMovements) {
+                        let amount = movement.amount
 
                         if(account.idCurrency !== this.selectedCurrency && this.currencyRates) {
                             amount = amount * this.currencyRates
-                            
-                            // currentBalance = currentBalance * this.currencyRates
-                            console.log(`Курс: ${this.currencyRates}`)
-                            console.log(`CurrentBalance 3: ${currentBalance}`)
-                            
                         }
-                        currentBalance -= amount  
+
+                        currentBalance -= amount;
+
                         seriesData.push([
-                            moment(movement.date).format('YYYY-MM-DD'),
+                            moment(movement.date).valueOf(),
                             currentBalance,
-                            movement.recipientAccountNumber
+                            movement.recipientAccountNumber,
+                            amount
                         ])
                     }
 
+                    console.log(seriesData);
                     if(seriesData.length > 0) {
                         lineChartOptions.series.push({
                             name: `${account.accountNumber} (${account.currency})`,  
@@ -163,23 +201,8 @@
                 }
 
                 lineChartOptions.legend.data = lineChartOptions.series.map(series => series.name)
-                this.lineChartOptions = lineChartOptions
                 
-                // this.lineChartOptions.series = transactions.map(account => {
-                //     const seriesData = account.movements.map(movement => [
-                //         moment(movement.date).format('YYYY-MM-DD'),
-                //         movement.amount,
-                //         movement.recipientAccountNumber
-                //     ])
-
-                //     return {
-                //         name: `${account.accountNumber} (${account.currency})`,
-                //         data: seriesData,
-                //         type: 'line'
-                //     }
-                // })
-
-                // this.lineChartOptions.legend.data = this.lineChartOptions.series.map(series => series.name)
+                this.lineChartOptions = lineChartOptions
             }
         }
     }
