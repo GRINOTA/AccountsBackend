@@ -35,6 +35,7 @@
                             <label class="form-label" v-if="!isAuth">У вас уже есть аккаунта? Авторизоваться</label>
                         </a>
                     </div>
+                    <label class="form-label" v-if="isAuth && unauthResponce" style="color: red;">{{errorMessage}}</label>
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary" v-if="isAuth">Войти</button>
                         <button type="submit" class="btn btn-primary" v-if="!isAuth">Зарегистрироваться</button>
@@ -51,6 +52,8 @@
     export default {
         data() {
             return {
+                errorMessage: null,
+                unauthResponce: false,
                 user: {
                     login: null,
                     password: null
@@ -68,22 +71,16 @@
         },
         methods: {
             async login() {
-                if(this.isAuth) {
-                    await AuthService.login(this.user).then(
-                        () => {
-                            this.$router.push('/')
-                        },
-                        error => {
-                            console.log(error)
-                        }
-                    )
-                } else {
-                    if(this.userRegister.password == this.passwordConfirm) {
-                        await AuthService.register(this.userRegister)
+                    const responce = await AuthService.login(this.user)
 
-                        window.location.reload()
+                    if(responce.data) {
+                        localStorage.setItem('token', responce.data);
+                        this.$router.replace('/')
+                        this.unauthResponce = false
+                    } else {
+                        this.errorMessage = responce.message
+                        this.unauthResponce = true
                     }
-                }
             },
             registerAuthEvent() {
                 event.preventDefault()

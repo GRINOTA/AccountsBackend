@@ -14,12 +14,16 @@ namespace AccountsBackend.Data.Repositories.UserRepository
 
         public async Task<User?> GetUserByLoginAsync(string login, string password, CancellationToken cancellationToken = default)
         {
-            return await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Login == login);
+            return await context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Login == login);
         } 
 
-        public async Task<User> GetUserByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<User?> GetUserByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            return await context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
     }
 }

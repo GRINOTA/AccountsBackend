@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using AccountsBackend.Data.Models;
+﻿using AccountsBackend.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AccountsBackend.Data.DataContext;

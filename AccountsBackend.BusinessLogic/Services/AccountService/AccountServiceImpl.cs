@@ -1,4 +1,3 @@
-using AccountsBackend.Data;
 using AccountsBackend.Data.Models;
 using AccountsBackend.Data.Repositories.AccountRepository;
 using AutoMapper;
@@ -18,7 +17,8 @@ namespace AccountsBackend.BusinessLogic.Services.AccountService
         
         public async Task CreateAsync(int userId, int currencyId, CancellationToken cancellationToken = default)
         {
-            var countAccount = _accountRepository.GetByUserIdAsync(userId, cancellationToken).Result.Count;
+            
+            var countAccount = _accountRepository.GetByUserIdAsync(userId, cancellationToken).Result?.Count;
 
             if(countAccount >= 5)
                 throw new Exception("Ограничение по количеству счетов 5.");

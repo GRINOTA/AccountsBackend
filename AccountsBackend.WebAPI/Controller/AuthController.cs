@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using AccountsBackend.BusinessLogic.Services.AuthService;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +12,6 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        // await HttpContext.SignOutAsync();
         Response.Cookies.Delete("cool-cookies");
         return NoContent();
     }
@@ -30,7 +28,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddMinutes(30)
+            Expires = DateTime.UtcNow.AddMinutes(1)
         });
         
         return result;

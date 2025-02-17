@@ -31,7 +31,7 @@
 
 <script>
     import AccountsService from '../services/accountsService'
-    // import AuthService from '../services/authService'
+    import AuthService from '../services/authService'
     
     export default {
         data() {
@@ -43,9 +43,9 @@
             this.accounts = await AccountsService.getAccountsList()
         },
         methods: {
-            logout() {
-                // AuthService.logout()
-                this.$router.push('/login')
+            async logout() {
+                await AuthService.logout()
+                this.$router.replace('/login')
             },
             goCreate() {
                 this.$router.push('/create')

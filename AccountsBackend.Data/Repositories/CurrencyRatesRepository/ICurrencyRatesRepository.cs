@@ -4,6 +4,6 @@ namespace AccountsBackend.Data.Repositories.CurrencyRatesRepository
 {
     public interface ICurrencyRatesRepository
     {
-        public Task<CurrencyRate> GetCurrencyRateByIdTargerRate(int idTargetCurrency);      
+        public Task<CurrencyRate?> GetCurrencyRateByIdTargerRate(int idTargetCurrency);      
     }
 }

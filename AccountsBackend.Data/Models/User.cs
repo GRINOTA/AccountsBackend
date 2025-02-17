@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AccountsBackend.Data.Models;
+﻿namespace AccountsBackend.Data.Models;
 
 public partial class User
 {

@@ -5,7 +5,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using AccountsBackend.Data.Models;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Http;
 
 namespace AccountsBackend.BusinessLogic.JwtGeneration
 {

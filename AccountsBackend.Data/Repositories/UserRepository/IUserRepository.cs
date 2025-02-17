@@ -8,6 +8,6 @@ namespace AccountsBackend.Data.Repositories.UserRepository
 
         Task<User?> GetUserByLoginAsync(string login, string password, CancellationToken cancellationToken);
 
-        Task<User> GetUserByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task<User?> GetUserByIdAsync(int id, CancellationToken cancellationToken = default);
     }
 }

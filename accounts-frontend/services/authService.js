@@ -4,12 +4,16 @@ const API_URL = 'http://localhost:5244/api';
 
 class AuthService {
     async login(user) {
-        const responce = await axios
+        try {
+            const responce = await axios
             .post(API_URL + '/Auth/login', user);
-        if (responce.data.token) {
-            localStorage.setItem('token', responce.data.token);
+            if (responce.data.token) {
+                localStorage.setItem('token', responce.data.token);
+            }
+            return responce;
+        } catch(e) {
+            return e;
         }
-        return responce.data;
     }
 
     async register(userRequest) {
@@ -19,10 +23,6 @@ class AuthService {
 
     async logout() {
         localStorage.removeItem('token')
-    }
-
-    isAuthenticated() {
-        return !!localStorage.getItem('token')
     }
 }
 

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using AccountsBackend.BusinessLogic.Services.AccountService;
 using System.Security.Claims;
-using Newtonsoft.Json;
 
 namespace AccountsBackend.WebAPI.Controller;
 
@@ -22,9 +21,16 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAsync([FromBody]int idCurrency) 
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-        await accountService.CreateAsync(Convert.ToInt32(userId), idCurrency);  
-        return NoContent();
+        try 
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            await accountService.CreateAsync(Convert.ToInt32(userId), idCurrency);  
+            return NoContent();
+        }
+        catch(Exception ex)
+        {
+            return StatusCode(500, new {message = ex.Message});
+        }
     }
 
     [HttpGet("{id:int}")]
