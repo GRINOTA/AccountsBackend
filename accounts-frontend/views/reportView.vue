@@ -1,32 +1,36 @@
 <template>
     <div>
         <div>
-            <legend>Отчет по движениям средств</legend>
+            <!-- <p class="h3">Отчет по движениям средств</p> -->
+             <legend>Отчет по движениям средств</legend>
             <div class="mb-3">
-                <label for="select" class="form-label">Конвертировать в валюту</label>
-                <select id="select" class="form-select" v-model.number="selectedCurrency">
+                <label for="selectCurrency" class="form-label">Конвертировать отчет в валюту</label>
+                <select id="selectCurrency" class="form-select" v-model.number="selectedCurrency">
                     <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
                         {{currency.codeCurrency}}
                     </option>
                 </select>
-            </div>   
-            <div>
-                <VueDatePicker v-model="date" range></VueDatePicker>
-            </div>       
-
+            </div>
+            <div>  
+                <p class="h5">Фильтрация</p>
+                <div>
+                    <label for="selectDate" class="form-label">Смотреть по датам</label>
+                    <VueDatePicker id="selectDate" v-model="date" range></VueDatePicker>
+                </div> 
+            </div>
+                  
             <div class="row justify-content-center">
                 <line-chart :options="lineChartOptions"></line-chart>
-                <!-- <line-chart :options="barChartOption"></line-chart> -->
+                <!-- <bar-chart :options="barChartOptions"></bar-chart> -->
             </div>
-        </div>
-        <div>
-            
+
         </div>
     </div>
 </template>
 
 <script>
     import LineChart from '../components/LineChart.vue'
+    // import BarChart from '../components/BarChart.vue'
     import TransactionService from '../services/transactionService';
     import moment from 'moment'
     import CurrencyService from '../services/currencyService'
@@ -37,29 +41,27 @@
     export default {
         components: { 
             LineChart,
+            // BarChart,
             VueDatePicker
         },
         data() {
             return {
-                date: [],
+                transactions: [],
+
                 selectedCurrency:  1,
                 currencies: [],
+                currencyRates: null,
 
+                date: [],
+                
                 lineChartOptions: {
                     xAxis: {
                         type: 'time',
-                        name: 'Даты',
-                        // boundaryGap: false
-                        // axisLabel: {
-                        //     formatter: `yyyy-MM-dd`
-                        // }
+                        name: 'Дата'
                     },
                     yAxis: {
                         type: 'value',
                         name: 'Баланс'
-                        // axisLabel: {
-                        //     formatter: 'value'
-                        // }
                     },
                     dataZoom: [
                         {
@@ -89,23 +91,36 @@
                     legend: {
                         data: []
                     },
-                    series: [],
-                    currencyRates: null,
-                    transactions: []
-                }
+                    series: []
+                },
+                // barChartOptions: {
+                //     xAxis: {
+                //         tipe: 'time',
+                //         name: "Дата"
+                //         // axisLabel: {
+                //         //     // formatter: (value) => moment(value).format('YYYY-MM-DD')
+                //         // }
+                //     },
+                //     yAxis: {
+                //         type: 'value',
+                //         name: 'Сумма'
+                //     },
+                //     series: []
+                // }
             }
         },
         watch: {
             selectedCurrency: {
                 handler: async function() {
                     await this.getTransaction()
-                    await this.updateChart();
+                    await this.updateLineChart();
+                    // await this.updateBarChart()
                 }
             },
             date: {
                 handler: async function() {
-                    // await this.getTransaction()
-                    await this.updateChart();
+                    await this.updateLineChart();
+                    // await this.updateBarChart()
                 }
             }
         },
@@ -126,31 +141,37 @@
 
                 this.currencyRates = rates && rates.rate ? rates.rate : null
                 
-                
-                this.updateChart()
+                this.updateLineChart()
+                // this.updateBarChart()
             },
-            updateChart() {
+            updateLineChart() {
                 const lineChartOptions = { ...this.lineChartOptions };
                 let startDate, endDate
 
                 lineChartOptions.series = [];
-
+ 
                 if (!this.date || this.date.length !== 2) { 
                     lineChartOptions.legend.data = [];
-                    delete lineChartOptions.xAxis.min; // Remove min property
-                    delete lineChartOptions.xAxis.max; // Remove max property
+                    delete lineChartOptions.xAxis.min;
+                    delete lineChartOptions.xAxis.max;
                     this.lineChartOptions = lineChartOptions; 
+
+                    startDate = moment().subtract(7,'days').startOf('day')
+                    endDate = moment().endOf('day')
+
+                    lineChartOptions.xAxis.min = startDate.valueOf();
+                    lineChartOptions.xAxis.max = endDate.valueOf();
                 } else {
                     startDate = moment(this.date[0]);
                     endDate = moment(this.date[1]);
 
+                    if(this.date.length === 1 || !this.date[1]) {
+                        endDate = moment(this.date[0]).add(7, 'days').endOf('day')    
+                    }
+
                     lineChartOptions.xAxis.min = startDate.valueOf();
                     lineChartOptions.xAxis.max = endDate.valueOf();
                 }
-
-                
-
-                // lineChartOptions.series = []
 
                 for (const account of this.transactions) {
                     const seriesData = []
@@ -190,7 +211,6 @@
                         ])
                     }
 
-                    console.log(seriesData);
                     if(seriesData.length > 0) {
                         lineChartOptions.series.push({
                             name: `${account.accountNumber} (${account.currency})`,  
@@ -203,7 +223,83 @@
                 lineChartOptions.legend.data = lineChartOptions.series.map(series => series.name)
                 
                 this.lineChartOptions = lineChartOptions
-            }
+            },
+            // updateBarChart() {
+            //     const barChartOptions = {...this.barChartOptions}
+            //     let startDateBar, endDateBar
+            //     barChartOptions.series = []
+
+            //     if(!this.date || this.date.length !== 2) {
+            //         endDateBar = moment().endOf('day')
+            //         startDateBar = moment().subtract(7, 'days').startOf('day')
+            //     } else {
+            //         startDateBar = moment(this.date[0]).startOf('day')
+            //         endDateBar = moment(this.date[1]).endOf('day')
+
+            //         if(this.date.length === 1) {
+            //             endDateBar = moment(this.date[0]).add(7, 'days').endOf('day')
+            //         }
+            //     }
+
+            //     // const sortedTransactionsBar = [...this.transactions].sort((a,b) => {
+            //     //     const c
+            //     // })
+
+            //     const transactionsBar = [...this.transactions]
+
+            //     for(const account of transactionsBar) {
+            //         const seriesData = [];
+            //         const movements = (this.date && this.date.length === 2) 
+            //             ? account.movements.filter(movement => {
+            //                 const movementDate = movement(movement.date)
+            //                 return movementDate.isBetween(startDateBar, endDateBar, null, '[]')
+            //             }) : account.movements
+
+            //         const sortedMovements = movements.sort((a, b) => {
+            //             moment(a.date) - moment(b.date)
+            //         })
+
+            //         const movementsByDate = {}
+
+            //         for (const movement of sortedMovements) {
+            //             const date = moment(movement.date).format('YYYY-MM-DD');
+
+            //             if(!movementsByDate[date]) {
+            //                 movementsByDate[date] = []
+            //             }
+
+            //             movementsByDate[date].push(movement);
+
+            //             for(const movement of movementsByDate) {
+            //                 let income = 0
+            //                 let expence = 0
+
+
+            //             }
+  
+            //             if(account.idCurrency !== this.selectedCurrency && this.currencyRates) {
+            //                 amount = amount * this.currencyRates
+            //             }
+
+            //             seriesData.push([
+            //                 moment(movement.date).valueOf(),
+            //                 amount,
+            //                 movement.recipientAccountNumber
+            //             ])
+            //         }
+
+            //         if(seriesData.length > 0) {
+            //             barChartOptions.series.push({
+            //                 name: `${account.accountNumber} (${account.currency})`,
+            //                 data: seriesData,
+            //                 type: 'bar'
+            //             })
+            //         }
+
+            //         this.barChartOptions = barChartOptions
+
+            //     }
+            // }
         }
     }
 </script>
