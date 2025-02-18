@@ -1,24 +1,27 @@
-import axios from "axios";
-
-const API_URL = 'http://localhost:5244/api';
+import axios from "axios"
+import {API_URL} from '../api'
 
 class AuthService {
     async login(user) {
         try {
             const responce = await axios
-            .post(API_URL + '/Auth/login', user);
+            .post(`${API_URL}/Auth/login`, user);
             if (responce.data.token) {
                 localStorage.setItem('token', responce.data.token);
             }
             return responce;
-        } catch(e) {
-            return e;
+        } catch(error) {
+            return Promise.reject(error)
         }
     }
 
     async register(userRequest) {
-        const responce = await axios.post(API_URL + '/Auth/register', userRequest);
-        return responce.data
+        try {
+            const responce = await axios.post(`${API_URL}/Auth/register`, userRequest);
+            return responce
+        } catch(error) {
+            return Promise.reject(error)
+        } 
     }
 
     async logout() {

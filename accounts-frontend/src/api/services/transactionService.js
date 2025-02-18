@@ -1,12 +1,11 @@
-import axios from "axios";
-
-const API_URL = 'http://localhost:5244/api';
+import axios from "axios"
+import {API_URL} from '../api'
 
 class TransactionService {
     async createTransaction(transaction) {
         await axios
             .post(
-                API_URL + '/Transaction', transaction
+                `${API_URL}/Transaction`, transaction
             ).then(responce => {
                 console.log(responce.data)
             }).catch(error => {
@@ -18,11 +17,18 @@ class TransactionService {
                 } else {
                     console.error("Ошибка при настройке запроса: ", error.message)    
                 } 
-            });
+                return Promise.reject(error)
+            }
+        );
     }
+
     async getTransaction() {
-        const responce = await axios.get(API_URL + '/Transaction');
-        return responce.data
+        try {
+            const responce = await axios.get(`${API_URL}/Transaction`);
+            return responce.data
+        } catch (error) {
+            return Promise.reject(error)
+        }
     }
 }
 
