@@ -47,7 +47,7 @@
 </template>
 
 <script>
-    import AuthService from '../services/authService'
+    import AuthService from '../api/services/authService'
 
     export default {
         data() {
@@ -71,20 +71,44 @@
         },
         methods: {
             async login() {
+                if(this.isAuth) {
                     const responce = await AuthService.login(this.user)
-
                     if(responce.data) {
                         localStorage.setItem('token', responce.data);
                         this.$router.replace('/')
-                        this.unauthResponce = false
+                        this.$toast.success('Вы успешно авторизовались')
                     } else {
-                        this.errorMessage = responce.message
-                        this.unauthResponce = true
+                        this.$toast.error(`${responce.message}`)
+                    }        
+                } else {
+                    if(this.userRegister.surname !== null
+                        && this.userRegister.firstName !== null
+                        && this.userRegister.login  !== null
+                        && this.userRegister.password !== null
+                    ) {
+                        if(this.userRegister.password === this.passwordConfirm) {
+                            await AuthService.register(this.userRegister)
+                                .then(response => {
+                                    this.isAuth = true;
+                                    this.$toast.success(`Регистрация прошла успешно`)
+                                    return response
+                                }).catch(error => {
+                                    this.$toast.error(`${error.message}`)
+                                })
+                        } else {
+                            this.$toast.error('Пароли не совпадают')
+                        }
+                    } else {
+                        this.$toast.error('Поля не должны быть пустыми (кроме отчества)')    
                     }
+                }
             },
             registerAuthEvent() {
                 event.preventDefault()
                 this.isAuth = !this.isAuth
+            },
+            async register() {
+                await AuthService.register(this.userRegister)    
             }
         }
     }

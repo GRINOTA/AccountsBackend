@@ -19,8 +19,8 @@
 </template>
 
 <script>
-    import CurrencyService from '../services/currencyService';
-    import AccountsService from '../services/accountsService';
+    import CurrencyService from '../api/services/currencyService';
+    import AccountsService from '../api/services/accountsService';
 
     export default {
         data() {
@@ -35,18 +35,18 @@
         },
         methods: {
             async openAccount() {
-                await AccountsService.createAccount(this.selectedCurrency)
-                // if(responce < 400) {
-                    // this.$router.replace('/')
-                    // this.$toast.success('Счет открыт')
-                    // if(responce.status === 500) {
-                    //     this.$toast.error(`${responce.data.message}`)
-                    // }
-                    
-                // } else {
-                //     this.$toast.error(`${responce}`) 
-                //     this.errorMessage = responce
-                // }
+                try {
+                    await AccountsService.createAccount(this.selectedCurrency)
+                    this.$router.replace('/')
+                    this.$toast.success('Счет открыт')
+                } catch(error) {
+                    console.log(error)
+                    if(error.response.status === 500) {
+                        this.$toast.error(`${error.response.data.message}`)
+                    } else {
+                        this.$toast.error(`${error.status} ${error.statisText}`)
+                    }
+                }
             },
         }
     }

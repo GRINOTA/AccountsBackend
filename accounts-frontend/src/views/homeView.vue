@@ -30,8 +30,8 @@
 </template>
 
 <script>
-    import AccountsService from '../services/accountsService'
-    import AuthService from '../services/authService'
+    import AccountsService from '../api/services/accountsService'
+    import AuthService from '../api/services/authService'
     
     export default {
         data() {
@@ -40,7 +40,12 @@
             }
         },
         async mounted() {
-            this.accounts = await AccountsService.getAccountsList()
+            try {
+                this.accounts = await AccountsService.getAccountsList()
+            } catch(error) {
+                console.log(error)
+                this.$toast.error(`${error.response.status} ${error.response.statusText}`)
+            }
         },
         methods: {
             async logout() {

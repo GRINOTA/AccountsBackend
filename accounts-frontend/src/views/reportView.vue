@@ -2,7 +2,7 @@
     <div>
         <div>
             <!-- <p class="h3">Отчет по движениям средств</p> -->
-             <legend>Отчет по движениям средств</legend>
+            <legend>Отчет по движениям средств</legend>
             <div class="mb-3">
                 <label for="selectCurrency" class="form-label">Конвертировать отчет в валюту</label>
                 <select id="selectCurrency" class="form-select" v-model.number="selectedCurrency">
@@ -13,9 +13,18 @@
             </div>
             <div>  
                 <p class="h5">Фильтрация</p>
-                <div>
-                    <label for="selectDate" class="form-label">Смотреть по датам</label>
+                <div> 
+                    <label for="selectDate" class="form-label">По датам</label>
                     <VueDatePicker id="selectDate" v-model="date" range></VueDatePicker>
+                </div>
+                <div> 
+                    <label for="selectCurrencyFiltr" class="form-label">По валютам</label>
+                    <select id="selectCurrencyFiltr" class="form-select" v-model.number="selectedCurrencyFilter">
+                        <option value="all">ВСЕ</option>
+                        <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
+                            {{currency.codeCurrency}}
+                        </option>
+                    </select>
                 </div> 
             </div>
                   
@@ -23,18 +32,17 @@
                 <line-chart :options="lineChartOptions"></line-chart>
                 <!-- <bar-chart :options="barChartOptions"></bar-chart> -->
             </div>
-
         </div>
     </div>
 </template>
 
 <script>
     import LineChart from '../components/LineChart.vue'
-    // import BarChart from '../components/BarChart.vue'
-    import TransactionService from '../services/transactionService';
+    // import BarChart from '../src/components/BarChart.vue'
+    import TransactionService from '../api/services/transactionService';
     import moment from 'moment'
-    import CurrencyService from '../services/currencyService'
-    import CurrencyRatesService from '../services/currencyRatesService'
+    import CurrencyService from '../api/services/currencyService'
+    import CurrencyRatesService from '../api/services/currencyRatesService'
     import VueDatePicker from '@vuepic/vue-datepicker';
     import '@vuepic/vue-datepicker/dist/main.css'
 
@@ -49,6 +57,7 @@
                 transactions: [],
 
                 selectedCurrency:  1,
+                selectedCurrencyFilter: null,
                 currencies: [],
                 currencyRates: null,
 
@@ -80,7 +89,7 @@
                     tooltip: {
                         trigger: 'axis',
                         formatter: (params) => {
-                            let tooltipContent = `Дата: ${params[0].data[0]}<br>`
+                            let tooltipContent = `Дата: ${moment(params[0].data[0]).format("YYYY-MM-DD HH:mm:ss")}<br>`
                             params.forEach(item => {
                                 tooltipContent += `Счёт: ${item.seriesName}<br>`
                                 tooltipContent += `Баланс: ${item.data[1].toFixed(2)}<br>`
@@ -122,6 +131,11 @@
                     await this.updateLineChart();
                     // await this.updateBarChart()
                 }
+            },
+            selectedCurrencyFilter: {
+                handler: async function() {
+                    await this.updateLineChart()
+                }
             }
         },
         async mounted() {
@@ -131,15 +145,20 @@
 
         methods: {
             async getCurrencies() {
-                this.currencies = await CurrencyService.getAllCurrency()
+                try {
+                    this.currencies = await CurrencyService.getAllCurrency()
+                } catch(error) {
+                    this.$toast.error(`${error.response.status} ${error.response.statusText}`)
+                }
             },
             async getTransaction() {
-
-                this.transactions = await TransactionService.getTransaction()
-                
-                const rates = await CurrencyRatesService.getRateByTargetRate(this.selectedCurrency)
-
-                this.currencyRates = rates && rates.rate ? rates.rate : null
+                try {
+                    this.transactions = await TransactionService.getTransaction()
+                    const rates = await CurrencyRatesService.getRateByTargetRate(this.selectedCurrency)
+                    this.currencyRates = rates && rates.rate ? rates.rate : null
+                } catch(error) {
+                    this.$toast.error(`${error.response.status} ${error.response.statusText}`)
+                }
                 
                 this.updateLineChart()
                 // this.updateBarChart()
@@ -182,10 +201,11 @@
                         currentBalance = currentBalance * this.currencyRates
                     }
 
-                    // фильтр движений по дате
-                    const filteredMovements = (this.date && this.date.length === 2) ? account.movements.filter(movement => {
-                        const movementDate = moment(movement.date);
-                        return movementDate.isBetween(startDate, endDate, null, '[]');
+                    // фильтр движений по дате и валюте
+                    const filteredMovements = (this.date && this.date.length === 2) ? account.movements.filter(
+                        movement => {
+                            const movementDate = moment(movement.date);
+                            return movementDate.isBetween(startDate, endDate, null, '[]');
                     }) : account.movements;
 
                     const sortedMovements = filteredMovements.sort((a, b) => {

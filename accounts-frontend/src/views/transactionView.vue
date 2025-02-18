@@ -45,8 +45,8 @@
 </template>
 
 <script>
-    import AccountsService from '../services/accountsService';
-    import TransactionService from '../services/transactionService';
+    import AccountsService from '../api/services/accountsService';
+    import TransactionService from '../api/services/transactionService';
     
     export default {
         data() {
@@ -70,7 +70,14 @@
         },
         methods: {
             async createTransaction() {
-                await TransactionService.createTransaction(this.transaction)
+                try {
+                    await TransactionService.createTransaction(this.transaction)
+                    this.$toast.success('Перевод выполнен')
+                    this.$router.replace('/')
+                } catch(error) {
+                    console.log(error)
+                    this.$toast.error(`${error.response.message} ${error.response.statusText}`)
+                }
             }
         }
     }
