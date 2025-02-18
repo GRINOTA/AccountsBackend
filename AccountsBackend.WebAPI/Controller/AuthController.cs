@@ -28,7 +28,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddMinutes(1)
+            Expires = DateTime.UtcNow.AddMinutes(120)
         });
         
         return result;

@@ -9,6 +9,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
     {
         public DateTime Date { get; set; }
         public decimal Amount { get; set; }
+        public int IdCurrency { get; set; }
         // public decimal Balance { get; set; }
         public string RecipientAccountNumber { get; set; }
     }

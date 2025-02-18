@@ -24,7 +24,6 @@ namespace AccountsBackend.BusinessLogic.Services.AuthService
 
         public async Task RegisterUserAsync(UserRegisterRequest userRequest, CancellationToken cancellationToken = default)
         {
-
             User user = new User
             {
                 Surname = userRequest.Surname,

@@ -1,9 +1,6 @@
-using AccountsBackend.BusinessLogic.Services.AccountService;
 using AccountsBackend.BusinessLogic.Services.CurrencyRatesService;
-using AccountsBackend.Data;
 using AccountsBackend.Data.DataContext;
 using AccountsBackend.Data.Models;
-using AccountsBackend.Data.Repositories.CurrencyRatesRepository;
 using AccountsBackend.Data.Repositories.TransactionRepository;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -79,6 +76,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                     {
                         Date = transaction.Date,
                         Amount = -transaction.Amount,
+                        IdCurrency = transaction.Sender.IdCurrency,
                         // Balance = transaction.SenderBalance,
                         RecipientAccountNumber = transaction.RecipientNumber
                     });
@@ -112,6 +110,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                     {
                         Date = transaction.Date,
                         Amount = amountRecipient,
+                        IdCurrency = transaction.Recipient.IdCurrency,
                         // Balance = transaction.SenderBalance,
                         RecipientAccountNumber = transaction.Sender.AccountNumber
                     });
