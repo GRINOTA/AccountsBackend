@@ -7,7 +7,6 @@ import ReportView from "../views/reportView.vue"
 import { createRouter, createWebHashHistory } from "vue-router"
 // import axios from "axios"
 
-
 const routes = [
     {
         path: '/login', 
@@ -19,7 +18,7 @@ const routes = [
         component: HomeView,
         meta: {requiresAuth: true}
     },
-    {path: '/create', component: CreateAccount, meta: {requiresAuth: true}},
+    {path: '/create', component: CreateAccount, meta: {requiresAuth: false}},
     {path: '/transaction', component: TransactionView, meta: {requiresAuth: true}},
     {path: '/report', component: ReportView, meta: {requiresAuth: true}},
 ]
