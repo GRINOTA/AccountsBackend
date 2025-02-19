@@ -36,8 +36,13 @@
         },
         methods: {
             initChart(options) {
+                if(this.chart) {
+                    this.chart.dispose()
+                }
                 this.chart = echarts.init(this.$refs.chart)
                 this.chart.setOption(options, true)
+                this.$emit('chart-ready')
+                console.log("LineChart mounted"); 
             }    
         }
     }

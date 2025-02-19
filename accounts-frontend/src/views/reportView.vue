@@ -28,7 +28,7 @@
             </div>
                   
             <div class="row justify-content-center">
-                <line-chart :options="lineChartOptions"></line-chart>
+                <line-chart :options="lineChartOptions" @chart-ready="handleChartReady" ref="lineChart"></line-chart>
             </div>
         </div>
     </div>
@@ -103,27 +103,30 @@
         watch: {
             selectedCurrency: {
                 handler: async function() {
-                    await this.getTransaction()
-                    await this.updateLineChart();
+                    await this.initData()
                 }
             },
             date: {
                 handler: async function() {
-                    await this.updateLineChart();
+                    await this.initData()
                 }
             },
             selectedCurrencyFilter: {
                 handler: async function() {
-                    await this.updateLineChart()
+                    await this.initData()
                 }
             }
         },
         async mounted() {
-            await this.getCurrencies()
-            await this.getTransaction()
+            await this.initData()
         },
 
         methods: {
+            async initData() {
+                await this.getCurrencies()
+                await this.getTransaction()
+                this.updateLineChart()
+            },
             async getCurrencies() {
                 try {
                     this.currencies = await CurrencyService.getAllCurrency()
@@ -136,19 +139,21 @@
                     this.transactions = await TransactionService.getTransaction()
                     const rates = await CurrencyRatesService.getRateByTargetRate(this.selectedCurrency)
                     this.currencyRates = rates && rates.rate ? rates.rate : null
-                    this.$nextTick(() => {
-                        this.updateLineChart()
-                    })
-                    
                 } catch(error) {
                     this.$toast.error(`${error.response.status} ${error.response.statusText}`)
                 }
-                
-                
+            },
+            handleChartReady() {
+                this.updateLineChart()
+                console.log("LineChart ref:", this.$refs.lineChart);
+                console.log("LineChart chart:", this.$refs.lineChart && this.$refs.lineChart.chart);
             },
             updateLineChart() {
-                const lineChartOptions = { ...this.lineChartOptions };
+                const lineChartOptions = { ...this.lineChartOptions }
+
                 let startDate, endDate
+
+                const newSeries = []
 
                 lineChartOptions.series = [];
  
@@ -179,7 +184,7 @@
                     filteredTransaction = this.transactions.filter(account => account.idCurrency === this.selectedCurrencyFilter)
                 }
                 console.log(filteredTransaction)
-                const newSeries = []
+                
                 for (const account of filteredTransaction) {
 
                     // const isAccountCurrencyMatching = this.selectedCurrencyFilter === 0 || account.idCurrency === this.selectedCurrencyFilter 
@@ -229,9 +234,9 @@
                             movement.recipientAccountNumber,
                             amount
                         ])
-                        console.log(seriesData)
+                        
                     }
-
+                    console.log("series", seriesData)
                     if(seriesData.length > 0) {
                         newSeries.push({
                             name: `${account.accountNumber} (${account.currency})`,  
@@ -240,21 +245,21 @@
                         })
                     }
                 }
-                console.log(newSeries)
-                lineChartOptions.series = newSeries
+                console.log("newSeries", newSeries)
+                lineChartOptions.series = newSeries;
 
-                lineChartOptions.legend.data = lineChartOptions.series.map(series => series.name)
+                lineChartOptions.legend.data = lineChartOptions.series.map(series => series.name);
                 
                 this.lineChartOptions = {...lineChartOptions}
 
                 this.$nextTick(() => {
-                    if(this.$refs.chart) {
-                        console.log(this.lineChartOptions)
-                        this.chart.setOption(this.lineChartOptions)
+                    if (this.$refs.lineChart && this.$refs.lineChart.chart) {
+                        console.log(lineChartOptions.series);
+                        this.$refs.lineChart.chart.setOption(this.lineChartOptions);
                     } else {
-                        console.error("График не обнаружен")
+                        console.error("График не инициализирован или ref не найден.");
                     }
-                })
+                });
             }
         }
     }
