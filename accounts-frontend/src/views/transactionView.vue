@@ -75,8 +75,8 @@
                     this.$toast.success('Перевод выполнен')
                     this.$router.replace('/')
                 } catch(error) {
-                    console.log(error)
-                    this.$toast.error(`${error.response.message} ${error.response.statusText}`)
+                    // console.log(error)
+                    this.$toast.error(`${error.response.status} ${error.response.data.message}`)
                 }
             }
         }
