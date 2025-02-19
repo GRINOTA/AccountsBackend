@@ -1,7 +1,6 @@
 <template>
     <div>
         <div>
-            <!-- <p class="h3">Отчет по движениям средств</p> -->
             <legend>Отчет по движениям средств</legend>
             <div class="mb-3">
                 <label for="selectCurrency" class="form-label">Конвертировать отчет в валюту</label>
@@ -20,7 +19,7 @@
                 <div> 
                     <label for="selectCurrencyFiltr" class="form-label">По валютам</label>
                     <select id="selectCurrencyFiltr" class="form-select" v-model.number="selectedCurrencyFilter">
-                        <option value="all">ВСЕ</option>
+                        <option :value="0"></option>
                         <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
                             {{currency.codeCurrency}}
                         </option>
@@ -30,7 +29,6 @@
                   
             <div class="row justify-content-center">
                 <line-chart :options="lineChartOptions"></line-chart>
-                <!-- <bar-chart :options="barChartOptions"></bar-chart> -->
             </div>
         </div>
     </div>
@@ -38,7 +36,6 @@
 
 <script>
     import LineChart from '../components/LineChart.vue'
-    // import BarChart from '../src/components/BarChart.vue'
     import TransactionService from '../api/services/transactionService';
     import moment from 'moment'
     import CurrencyService from '../api/services/currencyService'
@@ -49,7 +46,6 @@
     export default {
         components: { 
             LineChart,
-            // BarChart,
             VueDatePicker
         },
         data() {
@@ -57,7 +53,7 @@
                 transactions: [],
 
                 selectedCurrency:  1,
-                selectedCurrencyFilter: null,
+                selectedCurrencyFilter: 0,
                 currencies: [],
                 currencyRates: null,
 
@@ -101,21 +97,7 @@
                         data: []
                     },
                     series: []
-                },
-                // barChartOptions: {
-                //     xAxis: {
-                //         tipe: 'time',
-                //         name: "Дата"
-                //         // axisLabel: {
-                //         //     // formatter: (value) => moment(value).format('YYYY-MM-DD')
-                //         // }
-                //     },
-                //     yAxis: {
-                //         type: 'value',
-                //         name: 'Сумма'
-                //     },
-                //     series: []
-                // }
+                }
             }
         },
         watch: {
@@ -123,13 +105,11 @@
                 handler: async function() {
                     await this.getTransaction()
                     await this.updateLineChart();
-                    // await this.updateBarChart()
                 }
             },
             date: {
                 handler: async function() {
                     await this.updateLineChart();
-                    // await this.updateBarChart()
                 }
             },
             selectedCurrencyFilter: {
@@ -156,12 +136,15 @@
                     this.transactions = await TransactionService.getTransaction()
                     const rates = await CurrencyRatesService.getRateByTargetRate(this.selectedCurrency)
                     this.currencyRates = rates && rates.rate ? rates.rate : null
+                    this.$nextTick(() => {
+                        this.updateLineChart()
+                    })
+                    
                 } catch(error) {
                     this.$toast.error(`${error.response.status} ${error.response.statusText}`)
                 }
                 
-                this.updateLineChart()
-                // this.updateBarChart()
+                
             },
             updateLineChart() {
                 const lineChartOptions = { ...this.lineChartOptions };
@@ -191,20 +174,33 @@
                     lineChartOptions.xAxis.min = startDate.valueOf();
                     lineChartOptions.xAxis.max = endDate.valueOf();
                 }
+                let filteredTransaction = this.transactions
+                if(this.selectedCurrencyFilter !== 0) {
+                    filteredTransaction = this.transactions.filter(account => account.idCurrency === this.selectedCurrencyFilter)
+                }
+                console.log(filteredTransaction)
+                const newSeries = []
+                for (const account of filteredTransaction) {
 
-                for (const account of this.transactions) {
+                    // const isAccountCurrencyMatching = this.selectedCurrencyFilter === 0 || account.idCurrency === this.selectedCurrencyFilter 
+                    
+                    // фильтрация по валюте
+                    // if(!isAccountCurrencyMatching) {
+                    //     continue
+                    // }
+
                     const seriesData = []
 
                     let currentBalance = account.balance
-
+                    
                     if (account.idCurrency !== this.selectedCurrency && this.currencyRates) {
                         currentBalance = currentBalance * this.currencyRates
                     }
 
-                    // фильтр движений по дате и валюте
-                    const filteredMovements = (this.date && this.date.length === 2) ? account.movements.filter(
+                    // фильтр движений по дате
+                    const filteredMovements = ((this.date && this.date.length === 2)) ? account.movements.filter(
                         movement => {
-                            const movementDate = moment(movement.date);
+                            const movementDate = moment(movement.date)                            
                             return movementDate.isBetween(startDate, endDate, null, '[]');
                     }) : account.movements;
 
@@ -213,15 +209,19 @@
                         const dateB = moment(b.date)
                         return dateB - dateA
                     });
-
+ 
                     for (const movement of sortedMovements) {
+                        if(movement.idCurrency !== this.selectedCurrencyFilter && this.selectedCurrencyFilter !== 0) {
+                            continue
+                        }
+                        
                         let amount = movement.amount
-
+                        
                         if(account.idCurrency !== this.selectedCurrency && this.currencyRates) {
                             amount = amount * this.currencyRates
                         }
 
-                        currentBalance -= amount;
+                        currentBalance -= amount
 
                         seriesData.push([
                             moment(movement.date).valueOf(),
@@ -229,97 +229,33 @@
                             movement.recipientAccountNumber,
                             amount
                         ])
+                        console.log(seriesData)
                     }
 
                     if(seriesData.length > 0) {
-                        lineChartOptions.series.push({
+                        newSeries.push({
                             name: `${account.accountNumber} (${account.currency})`,  
                             data: seriesData,
                             type: 'line'  
                         })
                     }
                 }
+                console.log(newSeries)
+                lineChartOptions.series = newSeries
 
                 lineChartOptions.legend.data = lineChartOptions.series.map(series => series.name)
                 
-                this.lineChartOptions = lineChartOptions
-            },
-            // updateBarChart() {
-            //     const barChartOptions = {...this.barChartOptions}
-            //     let startDateBar, endDateBar
-            //     barChartOptions.series = []
+                this.lineChartOptions = {...lineChartOptions}
 
-            //     if(!this.date || this.date.length !== 2) {
-            //         endDateBar = moment().endOf('day')
-            //         startDateBar = moment().subtract(7, 'days').startOf('day')
-            //     } else {
-            //         startDateBar = moment(this.date[0]).startOf('day')
-            //         endDateBar = moment(this.date[1]).endOf('day')
-
-            //         if(this.date.length === 1) {
-            //             endDateBar = moment(this.date[0]).add(7, 'days').endOf('day')
-            //         }
-            //     }
-
-            //     // const sortedTransactionsBar = [...this.transactions].sort((a,b) => {
-            //     //     const c
-            //     // })
-
-            //     const transactionsBar = [...this.transactions]
-
-            //     for(const account of transactionsBar) {
-            //         const seriesData = [];
-            //         const movements = (this.date && this.date.length === 2) 
-            //             ? account.movements.filter(movement => {
-            //                 const movementDate = movement(movement.date)
-            //                 return movementDate.isBetween(startDateBar, endDateBar, null, '[]')
-            //             }) : account.movements
-
-            //         const sortedMovements = movements.sort((a, b) => {
-            //             moment(a.date) - moment(b.date)
-            //         })
-
-            //         const movementsByDate = {}
-
-            //         for (const movement of sortedMovements) {
-            //             const date = moment(movement.date).format('YYYY-MM-DD');
-
-            //             if(!movementsByDate[date]) {
-            //                 movementsByDate[date] = []
-            //             }
-
-            //             movementsByDate[date].push(movement);
-
-            //             for(const movement of movementsByDate) {
-            //                 let income = 0
-            //                 let expence = 0
-
-
-            //             }
-  
-            //             if(account.idCurrency !== this.selectedCurrency && this.currencyRates) {
-            //                 amount = amount * this.currencyRates
-            //             }
-
-            //             seriesData.push([
-            //                 moment(movement.date).valueOf(),
-            //                 amount,
-            //                 movement.recipientAccountNumber
-            //             ])
-            //         }
-
-            //         if(seriesData.length > 0) {
-            //             barChartOptions.series.push({
-            //                 name: `${account.accountNumber} (${account.currency})`,
-            //                 data: seriesData,
-            //                 type: 'bar'
-            //             })
-            //         }
-
-            //         this.barChartOptions = barChartOptions
-
-            //     }
-            // }
+                this.$nextTick(() => {
+                    if(this.$refs.chart) {
+                        console.log(this.lineChartOptions)
+                        this.chart.setOption(this.lineChartOptions)
+                    } else {
+                        console.error("График не обнаружен")
+                    }
+                })
+            }
         }
     }
 </script>

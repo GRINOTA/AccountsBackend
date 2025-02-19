@@ -1,29 +1,44 @@
 <template>
-    <div ref="chart" :style="{width: '100%', height: '1000px'}"></div>
+    <div ref="chart" :style="{width: '80%', height: '800px'}"></div>
 </template>
 <script>
     import * as echarts from 'echarts'
 
     export default {
         name: 'LineChart',
-        props: {
-            options: {
-                type: Object,
-                required: true
+        props: ['options'],
+        data() {
+            return {
+                chart: null
             }
         },
         mounted() {
-            const chart = echarts.init(this.$refs.chart)
-            chart.setOption(this.options)
+            if(this.options) {
+                this.initChart(this.options)
+            }
+        },
+        beforeUnmount() {
+            if(this.chart) {
+                this.chart.dispose()
+            }
         },
         watch: {
             options: {
                 handler(newOptions) {
-                    const chart = echarts.init(this.$refs.chart)
-                    chart.setOption(newOptions)
+                    if(this.chart) {
+                        this.chart.setOption(newOptions, true)
+                    } else {
+                        this.initChart(newOptions)
+                    }
                 },
                 deep: true
             }
+        },
+        methods: {
+            initChart(options) {
+                this.chart = echarts.init(this.$refs.chart)
+                this.chart.setOption(options, true)
+            }    
         }
     }
 </script>
