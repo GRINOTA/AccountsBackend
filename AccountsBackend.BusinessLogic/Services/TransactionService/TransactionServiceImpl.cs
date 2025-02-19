@@ -78,7 +78,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                         Amount = -transaction.Amount,
                         IdCurrency = transaction.Sender.IdCurrency,
                         // Balance = transaction.SenderBalance,
-                        RecipientAccountNumber = transaction.RecipientNumber
+                        RecipientAccountNumber = transaction.Sender.AccountNumber
                     });
                 }
 
@@ -112,7 +112,8 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                         Amount = amountRecipient,
                         IdCurrency = transaction.Recipient.IdCurrency,
                         // Balance = transaction.SenderBalance,
-                        RecipientAccountNumber = transaction.Sender.AccountNumber
+                        // RecipientAccountNumber = transaction.Sender.AccountNumber,
+                        RecipientAccountNumber = transaction.Recipient.AccountNumber
                     });
 
 

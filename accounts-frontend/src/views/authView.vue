@@ -106,9 +106,6 @@
             registerAuthEvent() {
                 event.preventDefault()
                 this.isAuth = !this.isAuth
-            },
-            async register() {
-                await AuthService.register(this.userRegister)    
             }
         }
     }
