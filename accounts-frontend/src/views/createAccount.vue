@@ -1,20 +1,28 @@
 <template>
-    <div>
-        <fieldset>
-            <legend>Открытие счета</legend>
-            <div class="mb-3">
-                <label for="select" class="form-label">Валюта счета</label>
-                <select id="select" class="form-select" v-model.number="selectedCurrency">
-                    <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
-                        {{currency.codeCurrency}}
-                    </option>
-                </select>
+    <div class="container mt-4 d-flex justify-content-center align-items-start" style="min-height: 100vh">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <legend>Открытие счета</legend>
+                </div>
+                <div class="card-body">
+                    <fieldset>
+                        <div class="mb-3">
+                            <label for="select" class="form-label">Валюта счета</label>
+                            <select id="select" class="form-select" v-model.number="selectedCurrency">
+                                <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
+                                    {{currency.codeCurrency}}
+                                </option>
+                            </select>
+                        </div>
+                        <label class="form-label" style="color: red;">{{errorMessage}}</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary" @click="openAccount">Открыть счет</button>    
+                        </div>
+                    </fieldset>
+                </div>
             </div>
-            <label class="form-label" style="color: red;">{{errorMessage}}</label>
-            <div>
-                <button type="submit" class="btn btn-primary" @click="openAccount">Открыть счет</button>    
-            </div>
-        </fieldset>
+        </div>
     </div>
 </template>
 

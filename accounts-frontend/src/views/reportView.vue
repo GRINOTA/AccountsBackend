@@ -1,35 +1,47 @@
 <template>
-    <div>
-        <div>
-            <legend>Отчет по движениям средств</legend>
-            <div class="mb-3">
-                <label for="selectCurrency" class="form-label">Конвертировать отчет в валюту</label>
-                <select id="selectCurrency" class="form-select" v-model.number="selectedCurrency">
-                    <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
-                        {{currency.codeCurrency}}
-                    </option>
-                </select>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <legend>Отчет по движениям средств</legend>
             </div>
-            <div>  
-                <p class="h5">Фильтрация</p>
-                <div> 
-                    <label for="selectDate" class="form-label">По датам</label>
-                    <VueDatePicker id="selectDate" v-model="date" range></VueDatePicker>
-                </div>
-                <div> 
-                    <label for="selectCurrencyFiltr" class="form-label">По валютам</label>
-                    <select id="selectCurrencyFiltr" class="form-select" v-model.number="selectedCurrencyFilter">
-                        <option :value="0"></option>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="selectCurrency" class="form-label">Конвертировать отчет в валюту</label>
+                    <select id="selectCurrency" class="form-select" v-model.number="selectedCurrency">
                         <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
                             {{currency.codeCurrency}}
                         </option>
                     </select>
-                </div> 
+                </div>
+
+                <div class="mt-4">  
+                    <p class="h5">Фильтрация</p>
+                    <div class="mb-3"> 
+                        <label for="selectDate" class="form-label">По датам</label>
+                        <VueDatePicker id="selectDate" v-model="date" range></VueDatePicker>
+                    </div>
+                    <div class="mb-3"> 
+                        <label for="selectCurrencyFiltr" class="form-label">По валютам</label>
+                        <select id="selectCurrencyFiltr" class="form-select" v-model.number="selectedCurrencyFilter">
+                            <option :value="0"></option>
+                            <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
+                                {{currency.codeCurrency}}
+                            </option>
+                        </select>
+                    </div> 
+                </div>
+
+                <div class="mt-4">
+                    <div class="row justify-content-center">
+                        <line-chart :options="lineChartOptions" @chart-ready="handleChartReady" ref="lineChart"></line-chart>
+                    </div>
+                </div>  
+
             </div>
-                  
-            <div class="row justify-content-center">
-                <line-chart :options="lineChartOptions" @chart-ready="handleChartReady" ref="lineChart"></line-chart>
-            </div>
+            
+            
+                
+            
         </div>
     </div>
 </template>
