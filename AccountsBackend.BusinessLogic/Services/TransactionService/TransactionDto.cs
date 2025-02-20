@@ -9,6 +9,8 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
     public class TransactionDto: IMapWith<Transaction>
     {
         public DateTime Date { get; set; }
+        public int SenderUserId { get; set ; }
+        public int RecipientUserId { get; set ; }
         public decimal Amount { get; set; }
         public decimal SenderBalance { get; set; }
         public AccountTransactionDto? Sender { get; set; }
@@ -21,6 +23,10 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
             profile.CreateMap<Transaction, TransactionDto>()
                 .ForMember(dto => dto.Date,
                     opt => opt.MapFrom(t => t.Date))
+                .ForMember(dto => dto.SenderUserId,
+                    opt => opt.MapFrom(t => t.SenderAccount.UserId))
+                .ForMember(dto => dto.RecipientUserId,
+                    opt => opt.MapFrom(t => t.RecipientAccount.UserId))
                 .ForMember(dto => dto.Amount, 
                     opt => opt.MapFrom(t => t.Amount))
                 .ForMember(dto => dto.SenderBalance,

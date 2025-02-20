@@ -14,12 +14,17 @@ namespace AccountsBackend.Data.Repositories.TransactionRepository
 
         public async Task<List<Transaction>?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
         {
+            var userAccountsId = await context.Accounts
+                .Where(a => a.UserId == userId)
+                .Select(a => a.Id)
+                .ToListAsync(cancellationToken);
+
             var transactions = await context.Transactions
                 .Include(t => t.RecipientAccount)
                 .Include(t => t.SenderAccount)
                 .Include(t => t.RecipientAccount.Currency)
                 .Include(t => t.SenderAccount.Currency)
-                .Where(t => t.SenderAccount.UserId == userId || t.RecipientAccount.UserId == userId)
+                .Where(t => userAccountsId.Contains(t.SenderAccountId) || userAccountsId.Contains(t.RecipientAccountId))
                 .ToListAsync(cancellationToken);
 
             return transactions;

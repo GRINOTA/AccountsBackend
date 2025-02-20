@@ -48,14 +48,18 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
 
         public async Task<List<AccountMovementDto>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
         {
-            var transactions = await _transactionRepository.GetByUserIdAsync(userId, cancellationToken);
+            
+
+            var transactions = await _transactionRepository
+                .GetByUserIdAsync(userId, cancellationToken);
+
             var transactionDto = _mapper.Map<List<TransactionDto>>(transactions);
 
             var accounts = new Dictionary<string, AccountMovementDto>();
 
             foreach(var transaction in transactionDto) 
             {
-                if(transaction.Sender != null) 
+                if(transaction.Sender != null && transaction.SenderUserId == userId) 
                 {
                     if(!accounts.ContainsKey(transaction.Sender.AccountNumber)) 
                     {
@@ -66,10 +70,7 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                             Currency = transaction.Sender.Currency,
                             Balance = transaction.Sender.Balance,
                             Movements = new List<MovementDto>()
-                        };
-
-                        // accounts[transaction.Sender.AccountNumber].Balance -= transaction.Amount;
-                        
+                        };    
                     };
 
                     accounts[transaction.Sender.AccountNumber].Movements.Add(new MovementDto
@@ -77,12 +78,11 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                         Date = transaction.Date,
                         Amount = -transaction.Amount,
                         IdCurrency = transaction.Sender.IdCurrency,
-                        // Balance = transaction.SenderBalance,
-                        RecipientAccountNumber = transaction.Sender.AccountNumber
+                        RecipientAccountNumber = transaction.Recipient.AccountNumber,
                     });
                 }
 
-                if(transaction.Recipient != null) 
+                if(transaction.Recipient != null && transaction.RecipientUserId == userId) 
                 {
                     decimal amountRecipient = transaction.Amount;
                     
@@ -102,8 +102,6 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                             Balance = transaction.Recipient.Balance,
                             Movements = new List<MovementDto>()
                         };
-
-                       
                     }
 
                     accounts[transaction.Recipient.AccountNumber].Movements.Add(new MovementDto
@@ -111,14 +109,8 @@ namespace AccountsBackend.BusinessLogic.Services.TransactionService
                         Date = transaction.Date,
                         Amount = amountRecipient,
                         IdCurrency = transaction.Recipient.IdCurrency,
-                        // Balance = transaction.SenderBalance,
-                        // RecipientAccountNumber = transaction.Sender.AccountNumber,
-                        RecipientAccountNumber = transaction.Recipient.AccountNumber
-                    });
-
-
-                    // accounts[transaction.Recipient.AccountNumber].Balance += transaction.Amount;
-                    
+                        RecipientAccountNumber = transaction.Sender.AccountNumber,
+                    });            
                 }
             }
 
