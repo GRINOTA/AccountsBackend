@@ -6,9 +6,9 @@ class TransactionService {
         await axios
             .post(
                 `${API_URL}/Transaction`, transaction
-            ).then(responce => {
-                console.log(responce)
-                return responce.data
+            ).then(response => {
+                console.log(response.status)
+                return response
             }).catch(error => {
                 return Promise.reject(error)
             }
