@@ -400,8 +400,6 @@ FodyWeavers.xsd
 #connection string db
 Connections.config
 
-appsettings.json
-
 .DS_Store
 node_modules
 /dist
@@ -424,4 +422,6 @@ pnpm-debug.log*
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+
+
+configuration.env
