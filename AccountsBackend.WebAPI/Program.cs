@@ -6,8 +6,10 @@ using Microsoft.OpenApi.Models;
 using AccountsBackend.BusinessLogic;
 using AccountsBackend.BusinessLogic.Mappings;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using System.Web.Http.Cors;
+//using System.Web.Http.Cors;
 using System.Web.Http;
+using DotNetEnv;
+using System.Collections;
 
 namespace AccountsBackend.WebAPI;
 
@@ -15,10 +17,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var cors = new EnableCorsAttribute("*", "*", "*");
         var httpConfig = new HttpConfiguration();
 
-        httpConfig.EnableCors(cors);
         httpConfig.MapHttpAttributeRoutes();
         httpConfig.Routes.MapHttpRoute(
             name: "DefaultApi", 
@@ -27,7 +27,21 @@ public class Program
 
         var builder = WebApplication.CreateBuilder(args);
 
+        var solutionDirectory = Directory.GetCurrentDirectory();
+        var envFilePath = Path.Combine(solutionDirectory, "..", "configuration.env");
+        Console.WriteLine($"Env file path: {envFilePath}");
+
+        Console.WriteLine("Env file exists. Loading variables.");
+        Env.Load(envFilePath);
+
+        builder.Configuration["JWTCONFIG__ISSUER"] = Environment.GetEnvironmentVariable("JWTCONFIG__ISSUER");
+        builder.Configuration["JWTCONFIG__AUDIENCE"] = Environment.GetEnvironmentVariable("JWTCONFIG__AUDIENCE");
+        builder.Configuration["JWTCONFIG__KEY"] = Environment.GetEnvironmentVariable("JWTCONFIG__KEY");
+        builder.Configuration["CONNECTION_STRING__ACCOUNTDB"] = Environment.GetEnvironmentVariable("CONNECTION_STRING__ACCOUNTDB");
+
         var configuration = builder.Configuration;
+
+        configuration.AddEnvironmentVariables();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddDataAccess(configuration);
@@ -66,9 +80,9 @@ public class Program
             opt.SaveToken = true;
             opt.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
-                ValidAudience = builder.Configuration["JwtConfig:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"])),
+                ValidIssuer = builder.Configuration["JWTCONFIG__ISSUER"],
+                ValidAudience = builder.Configuration["JWTCONFIG__AUDIENCE"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTCONFIG__KEY"])),
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
